@@ -1,0 +1,1 @@
+sparrowswap testnet router 0x8EdDe870aF7d839F2FF33f04e16329F5b45980Ac fuji

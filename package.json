@@ -1,0 +1,36 @@
+{
+  "name": "sparrow-finance-spavax",
+  "version": "1.0.0",
+  "description": "Sparrow Finance - Simplified Liquid Staking for Avalanche",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:fuji": "hardhat run scripts/deploy.js --network fuji",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+    "verify:fuji": "hardhat verify --network fuji",
+    "node": "hardhat node"
+  },
+  "keywords": [
+    "avalanche",
+    "liquid-staking",
+    "defi",
+    "spavax"
+  ],
+  "author": "Cypher Networks",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@openzeppelin/hardhat-upgrades": "^3.9.1",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "dotenv": "^16.3.1"
+  },
+  "directories": {
+    "test": "test"
+  }
+}

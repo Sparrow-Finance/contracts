@@ -1,0 +1,2090 @@
+{
+  "compiler": {
+    "version": "0.8.22+commit.4fc1097e"
+  },
+  "language": "Solidity",
+  "output": {
+    "abi": [
+      {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "target",
+            "type": "address"
+          }
+        ],
+        "name": "AddressEmptyCode",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "implementation",
+            "type": "address"
+          }
+        ],
+        "name": "ERC1967InvalidImplementation",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ERC1967NonPayable",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "allowance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "needed",
+            "type": "uint256"
+          }
+        ],
+        "name": "ERC20InsufficientAllowance",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "balance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "needed",
+            "type": "uint256"
+          }
+        ],
+        "name": "ERC20InsufficientBalance",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "approver",
+            "type": "address"
+          }
+        ],
+        "name": "ERC20InvalidApprover",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          }
+        ],
+        "name": "ERC20InvalidReceiver",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          }
+        ],
+        "name": "ERC20InvalidSender",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "spender",
+            "type": "address"
+          }
+        ],
+        "name": "ERC20InvalidSpender",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "EnforcedPause",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ExpectedPause",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "FailedCall",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "InvalidInitialization",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "NotInitializing",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuardReentrantCall",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "UUPSUnauthorizedCallContext",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes32",
+            "name": "slot",
+            "type": "bytes32"
+          }
+        ],
+        "name": "UUPSUnsupportedProxiableUUID",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "Approval",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "oldWindow",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "newWindow",
+            "type": "uint256"
+          }
+        ],
+        "name": "ClaimWindowUpdated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "DaoFeesCollected",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Deposited",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "DevFeesCollected",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "protocolFee",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "daoFee",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "devFee",
+            "type": "uint256"
+          }
+        ],
+        "name": "FeeStructureUpdated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          }
+        ],
+        "name": "GovernanceTransferInitiated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          }
+        ],
+        "name": "GovernanceTransferred",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint64",
+            "name": "version",
+            "type": "uint64"
+          }
+        ],
+        "name": "Initialized",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "oldAmount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "newAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "MinStakeAmountUpdated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "Paused",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "totalReward",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "userReward",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "daoFee",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "devFee",
+            "type": "uint256"
+          }
+        ],
+        "name": "RewardsAdded",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "beamAmount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Staked",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "Transfer",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "index",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "UnlockCancelled",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "index",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "UnlockExpired",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "oldPeriod",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "newPeriod",
+            "type": "uint256"
+          }
+        ],
+        "name": "UnlockPeriodUpdated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "beamAmount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "unlockTime",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "expiryTime",
+            "type": "uint256"
+          }
+        ],
+        "name": "UnlockRequested",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "Unpaused",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "beamAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Unstaked",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "implementation",
+            "type": "address"
+          }
+        ],
+        "name": "Upgraded",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Withdrawn",
+        "type": "event"
+      },
+      {
+        "inputs": [],
+        "name": "BASIS_POINTS",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MAX_CLAIM_WINDOW",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MAX_TOTAL_FEE",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MAX_UNLOCK_PERIOD",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MAX_UNLOCK_REQUESTS",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MIN_CLAIM_WINDOW",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MIN_UNLOCK_PERIOD",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "UPGRADE_INTERFACE_VERSION",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "acceptGovernance",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "accumulatedDaoFees",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "accumulatedDevFees",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "addRewards",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "spender",
+            "type": "address"
+          }
+        ],
+        "name": "allowance",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "spender",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "approve",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "requestIndex",
+            "type": "uint256"
+          }
+        ],
+        "name": "cancelUnlock",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "requestIndex",
+            "type": "uint256"
+          }
+        ],
+        "name": "claimExpired",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "requestIndex",
+            "type": "uint256"
+          }
+        ],
+        "name": "claimUnlock",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "claimWindow",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "collectDaoFees",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "collectDevFees",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "daoFeeBasisPoints",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [
+          {
+            "internalType": "uint8",
+            "name": "",
+            "type": "uint8"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "deposit",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "devFeeBasisPoints",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getExchangeRate",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "rate",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getStats",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "totalStaked",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalShares",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "exchangeRate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidBalance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pendingDaoFees",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pendingDevFees",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "daoFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "devFee",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "requestIndex",
+            "type": "uint256"
+          }
+        ],
+        "name": "getUnlockRequest",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "beamAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "unlockTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isReady",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isExpired",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          }
+        ],
+        "name": "getUnlockRequestCount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "count",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "governance",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "minStakeAmount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "pause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "paused",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "pendingGovernance",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "beamAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "previewStake",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "previewUnlock",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "beamAmount",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "protocolFeeBasisPoints",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "proxiableUUID",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minBeamOut",
+            "type": "uint256"
+          }
+        ],
+        "name": "requestUnlock",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "beamAmount",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "newClaimWindow",
+            "type": "uint256"
+          }
+        ],
+        "name": "setClaimWindow",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "newDaoFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "newDevFee",
+            "type": "uint256"
+          }
+        ],
+        "name": "setFeeStructure",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "newMinAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "setMinStakeAmount",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "newUnlockPeriod",
+            "type": "uint256"
+          }
+        ],
+        "name": "setUnlockPeriod",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "minSpBeamOut",
+            "type": "uint256"
+          }
+        ],
+        "name": "stake",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "totalPooledBEAM",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "transfer",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "name": "transferFrom",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newGovernance",
+            "type": "address"
+          }
+        ],
+        "name": "transferGovernance",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "unlockPeriod",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "name": "unlockRequests",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "spBeamAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "unlockTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiryTime",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "unpause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newImplementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "name": "upgradeToAndCall",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "stateMutability": "payable",
+        "type": "receive"
+      }
+    ],
+    "devdoc": {
+      "author": "Sparrow Finance",
+      "errors": {
+        "AddressEmptyCode(address)": [
+          {
+            "details": "There's no code at `target` (it is not a contract)."
+          }
+        ],
+        "ERC1967InvalidImplementation(address)": [
+          {
+            "details": "The `implementation` of the proxy is invalid."
+          }
+        ],
+        "ERC1967NonPayable()": [
+          {
+            "details": "An upgrade function sees `msg.value > 0` that may be lost."
+          }
+        ],
+        "ERC20InsufficientAllowance(address,uint256,uint256)": [
+          {
+            "details": "Indicates a failure with the `spender`’s `allowance`. Used in transfers.",
+            "params": {
+              "allowance": "Amount of tokens a `spender` is allowed to operate with.",
+              "needed": "Minimum amount required to perform a transfer.",
+              "spender": "Address that may be allowed to operate on tokens without being their owner."
+            }
+          }
+        ],
+        "ERC20InsufficientBalance(address,uint256,uint256)": [
+          {
+            "details": "Indicates an error related to the current `balance` of a `sender`. Used in transfers.",
+            "params": {
+              "balance": "Current balance for the interacting account.",
+              "needed": "Minimum amount required to perform a transfer.",
+              "sender": "Address whose tokens are being transferred."
+            }
+          }
+        ],
+        "ERC20InvalidApprover(address)": [
+          {
+            "details": "Indicates a failure with the `approver` of a token to be approved. Used in approvals.",
+            "params": {
+              "approver": "Address initiating an approval operation."
+            }
+          }
+        ],
+        "ERC20InvalidReceiver(address)": [
+          {
+            "details": "Indicates a failure with the token `receiver`. Used in transfers.",
+            "params": {
+              "receiver": "Address to which tokens are being transferred."
+            }
+          }
+        ],
+        "ERC20InvalidSender(address)": [
+          {
+            "details": "Indicates a failure with the token `sender`. Used in transfers.",
+            "params": {
+              "sender": "Address whose tokens are being transferred."
+            }
+          }
+        ],
+        "ERC20InvalidSpender(address)": [
+          {
+            "details": "Indicates a failure with the `spender` to be approved. Used in approvals.",
+            "params": {
+              "spender": "Address that may be allowed to operate on tokens without being their owner."
+            }
+          }
+        ],
+        "EnforcedPause()": [
+          {
+            "details": "The operation failed because the contract is paused."
+          }
+        ],
+        "ExpectedPause()": [
+          {
+            "details": "The operation failed because the contract is not paused."
+          }
+        ],
+        "FailedCall()": [
+          {
+            "details": "A call to an address target failed. The target may have reverted."
+          }
+        ],
+        "InvalidInitialization()": [
+          {
+            "details": "The contract is already initialized."
+          }
+        ],
+        "NotInitializing()": [
+          {
+            "details": "The contract is not initializing."
+          }
+        ],
+        "ReentrancyGuardReentrantCall()": [
+          {
+            "details": "Unauthorized reentrant call."
+          }
+        ],
+        "UUPSUnauthorizedCallContext()": [
+          {
+            "details": "The call is from an unauthorized context."
+          }
+        ],
+        "UUPSUnsupportedProxiableUUID(bytes32)": [
+          {
+            "details": "The storage `slot` is unsupported as a UUID."
+          }
+        ]
+      },
+      "events": {
+        "Approval(address,address,uint256)": {
+          "details": "Emitted when the allowance of a `spender` for an `owner` is set by a call to {approve}. `value` is the new allowance."
+        },
+        "Initialized(uint64)": {
+          "details": "Triggered when the contract has been initialized or reinitialized."
+        },
+        "Paused(address)": {
+          "details": "Emitted when the pause is triggered by `account`."
+        },
+        "Transfer(address,address,uint256)": {
+          "details": "Emitted when `value` tokens are moved from one account (`from`) to another (`to`). Note that `value` may be zero."
+        },
+        "Unpaused(address)": {
+          "details": "Emitted when the pause is lifted by `account`."
+        },
+        "Upgraded(address)": {
+          "details": "Emitted when the implementation is upgraded."
+        }
+      },
+      "kind": "dev",
+      "methods": {
+        "acceptGovernance()": {
+          "details": "Must be called by pending governance"
+        },
+        "addRewards()": {
+          "details": "Splits fees: (5% DAO + 3% dev), 92% usersMust send BEAM with this transaction"
+        },
+        "allowance(address,address)": {
+          "details": "Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called."
+        },
+        "approve(address,uint256)": {
+          "details": "See {IERC20-approve}. NOTE: If `value` is the maximum `uint256`, the allowance is not updated on `transferFrom`. This is semantically equivalent to an infinite approval. Requirements: - `spender` cannot be the zero address."
+        },
+        "balanceOf(address)": {
+          "details": "Returns the value of tokens owned by `account`."
+        },
+        "cancelUnlock(uint256)": {
+          "params": {
+            "requestIndex": "Index of the unlock request to cancel"
+          }
+        },
+        "claimExpired(uint256)": {
+          "params": {
+            "requestIndex": "Index of the expired unlock request"
+          }
+        },
+        "claimUnlock(uint256)": {
+          "params": {
+            "requestIndex": "Index of the unlock request to claim"
+          }
+        },
+        "constructor": {
+          "custom:oz-upgrades-unsafe-allow": "constructor"
+        },
+        "decimals()": {
+          "details": "Returns the number of decimals used to get its user representation. For example, if `decimals` equals `2`, a balance of `505` tokens should be displayed to a user as `5.05` (`505 / 10 ** 2`). Tokens usually opt for a value of 18, imitating the relationship between Ether and Wei. This is the default value returned by this function, unless it's overridden. NOTE: This information is only used for _display_ purposes: it in no way affects any of the arithmetic of the contract, including {IERC20-balanceOf} and {IERC20-transfer}."
+        },
+        "getExchangeRate()": {
+          "returns": {
+            "rate": "Exchange rate scaled by 1e18 (1e18 = 1:1 ratio)"
+          }
+        },
+        "getUnlockRequest(address,uint256)": {
+          "params": {
+            "requestIndex": "Index of the request",
+            "user": "User address"
+          },
+          "returns": {
+            "beamAmount": "Amount of BEAM to receive",
+            "expiryTime": "Timestamp when claim window expires",
+            "isExpired": "Whether the claim window has expired",
+            "isReady": "Whether the unlock period has passed",
+            "spBeamAmount": "Amount of spBEAM locked",
+            "unlockTime": "Timestamp when unlock is available"
+          }
+        },
+        "getUnlockRequestCount(address)": {
+          "params": {
+            "user": "User address"
+          },
+          "returns": {
+            "count": "Number of pending requests"
+          }
+        },
+        "initialize()": {
+          "details": "Can only be called once"
+        },
+        "name()": {
+          "details": "Returns the name of the token."
+        },
+        "paused()": {
+          "details": "Returns true if the contract is paused, and false otherwise."
+        },
+        "previewStake(uint256)": {
+          "params": {
+            "beamAmount": "Amount of BEAM"
+          },
+          "returns": {
+            "spBeamAmount": "Equivalent spBEAM amount"
+          }
+        },
+        "previewUnlock(uint256)": {
+          "params": {
+            "spBeamAmount": "Amount of spBEAM"
+          },
+          "returns": {
+            "beamAmount": "Equivalent BEAM amount"
+          }
+        },
+        "proxiableUUID()": {
+          "details": "Implementation of the ERC-1822 {proxiableUUID} function. This returns the storage slot used by the implementation. It is used to validate the implementation's compatibility when performing an upgrade. IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier."
+        },
+        "requestUnlock(uint256,uint256)": {
+          "params": {
+            "spBeamAmount": "Amount of spBEAM to unstake"
+          },
+          "returns": {
+            "beamAmount": "Amount of BEAM you'll receive after unlock period"
+          }
+        },
+        "setClaimWindow(uint256)": {
+          "params": {
+            "newClaimWindow": "New claim window in seconds"
+          }
+        },
+        "setFeeStructure(uint256,uint256)": {
+          "details": "Total fees cannot exceed 10% (1000 basis points)",
+          "params": {
+            "newDaoFee": "DAO treasury fee in basis points",
+            "newDevFee": "Development fee in basis points"
+          }
+        },
+        "setMinStakeAmount(uint256)": {
+          "params": {
+            "newMinAmount": "New minimum in wei"
+          }
+        },
+        "setUnlockPeriod(uint256)": {
+          "params": {
+            "newUnlockPeriod": "New unlock period in seconds"
+          }
+        },
+        "stake(uint256)": {
+          "returns": {
+            "spBeamAmount": "Amount of spBEAM minted"
+          }
+        },
+        "symbol()": {
+          "details": "Returns the symbol of the token, usually a shorter version of the name."
+        },
+        "totalSupply()": {
+          "details": "Returns the value of tokens in existence."
+        },
+        "transfer(address,uint256)": {
+          "details": "See {IERC20-transfer}. Requirements: - `to` cannot be the zero address. - the caller must have a balance of at least `value`."
+        },
+        "transferFrom(address,address,uint256)": {
+          "details": "See {IERC20-transferFrom}. Skips emitting an {Approval} event indicating an allowance update. This is not required by the ERC. See {xref-ERC20-_approve-address-address-uint256-bool-}[_approve]. NOTE: Does not update the allowance if the current allowance is the maximum `uint256`. Requirements: - `from` and `to` cannot be the zero address. - `from` must have a balance of at least `value`. - the caller must have allowance for ``from``'s tokens of at least `value`."
+        },
+        "transferGovernance(address)": {
+          "params": {
+            "newGovernance": "New governance address"
+          }
+        },
+        "upgradeToAndCall(address,bytes)": {
+          "custom:oz-upgrades-unsafe-allow-reachable": "delegatecall",
+          "details": "Upgrade the implementation of the proxy to `newImplementation`, and subsequently execute the function call encoded in `data`. Calls {_authorizeUpgrade}. Emits an {Upgraded} event."
+        },
+        "withdraw(uint256)": {
+          "params": {
+            "amount": "Amount of BEAM to withdraw"
+          }
+        }
+      },
+      "title": "spBEAM - Sparrow Staked BEAM (Upgradeable with Governance)",
+      "version": 1
+    },
+    "userdoc": {
+      "kind": "user",
+      "methods": {
+        "acceptGovernance()": {
+          "notice": "Accept governance transfer"
+        },
+        "accumulatedDaoFees()": {
+          "notice": "Accumulated DAO treasury fees"
+        },
+        "accumulatedDevFees()": {
+          "notice": "Accumulated development fees"
+        },
+        "addRewards()": {
+          "notice": "Add validator rewards with fee distribution"
+        },
+        "cancelUnlock(uint256)": {
+          "notice": "Cancel an unlock request and get spBEAM back (before expiry)"
+        },
+        "claimExpired(uint256)": {
+          "notice": "Claim expired unlock request (returns spBEAM after claim window expires)"
+        },
+        "claimUnlock(uint256)": {
+          "notice": "Claim unlocked BEAM after unlock period has passed"
+        },
+        "claimWindow()": {
+          "notice": "Claim window - time after unlock to claim before expiring (initialized in initialize())"
+        },
+        "collectDaoFees()": {
+          "notice": "Collect accumulated DAO treasury fees"
+        },
+        "collectDevFees()": {
+          "notice": "Collect accumulated development fees"
+        },
+        "daoFeeBasisPoints()": {
+          "notice": "DAO treasury fee (5% = 500 basis points out of 10000)"
+        },
+        "deposit()": {
+          "notice": "Deposit BEAM back from validators (adds liquidity)"
+        },
+        "devFeeBasisPoints()": {
+          "notice": "Development fund fee (3% = 300 basis points out of 10000)"
+        },
+        "getExchangeRate()": {
+          "notice": "Get current exchange rate (how much BEAM 1 spBEAM is worth)"
+        },
+        "getStats()": {
+          "notice": "Get all contract stats in one call"
+        },
+        "getUnlockRequest(address,uint256)": {
+          "notice": "Get details of a specific unlock request"
+        },
+        "getUnlockRequestCount(address)": {
+          "notice": "Get number of pending unlock requests for a user"
+        },
+        "governance()": {
+          "notice": "Governance address (owner, multisig, or DAO)"
+        },
+        "initialize()": {
+          "notice": "Initialize the contract (replaces constructor for upgradeable contracts)"
+        },
+        "minStakeAmount()": {
+          "notice": "Minimum stake amount (initialized in initialize())"
+        },
+        "pause()": {
+          "notice": "Emergency pause (stops staking/unstaking)"
+        },
+        "pendingGovernance()": {
+          "notice": "Pending governance for 2-step transfer"
+        },
+        "previewStake(uint256)": {
+          "notice": "Preview how much spBEAM you'll get for BEAM amount"
+        },
+        "previewUnlock(uint256)": {
+          "notice": "Preview how much BEAM you'll get for spBEAM amount"
+        },
+        "protocolFeeBasisPoints()": {
+          "notice": "Combined protocol fee (DAO + Dev)"
+        },
+        "requestUnlock(uint256,uint256)": {
+          "notice": "Request to unstake spBEAM (starts unlock timer)"
+        },
+        "setClaimWindow(uint256)": {
+          "notice": "Update claim window"
+        },
+        "setFeeStructure(uint256,uint256)": {
+          "notice": "Update fee structure"
+        },
+        "setMinStakeAmount(uint256)": {
+          "notice": "Update minimum stake amount"
+        },
+        "setUnlockPeriod(uint256)": {
+          "notice": "Update unlock period"
+        },
+        "stake(uint256)": {
+          "notice": "Stake BEAM and receive spBEAM tokens"
+        },
+        "totalPooledBEAM()": {
+          "notice": "Total BEAM controlled by protocol (includes staked with validators)"
+        },
+        "transferGovernance(address)": {
+          "notice": "Transfer governance to a new address (2-step process)"
+        },
+        "unlockPeriod()": {
+          "notice": "Unlock period for withdrawals (initialized in initialize())"
+        },
+        "unlockRequests(address,uint256)": {
+          "notice": "Mapping of user addresses to their unlock requests"
+        },
+        "unpause()": {
+          "notice": "Resume operations"
+        },
+        "withdraw(uint256)": {
+          "notice": "Withdraw BEAM to stake with validators"
+        }
+      },
+      "notice": "First liquid staking token for Beam Network with DAO governance  How it works: 1. Users stake BEAM → receive spBEAM tokens 2. spBEAM value increases as validator rewards are added 3. Users request unlock → wait unlock period → claim BEAM within claim window 4. Protocol earns fees: 5% DAO treasury + 3% development = 8% total 5. Governance (DAO) controls fees, unlock period, and upgrades  Exchange Rate: 1 spBEAM = totalPooledBEAM / totalSupply() Unlock System: 14 days unlock period + 7 day claim window (DAO adjustable)  Features: - First liquid staking on Beam (gaming-focused subnet) - Governance controlled (decentralized) - Max 10% total fees (hardcoded) - Unlock period 7-30 days (hardcoded limits) - Upgradeable via DAO vote",
+      "version": 1
+    }
+  },
+  "settings": {
+    "compilationTarget": {
+      "contracts/spBEAM/spBEAM.sol": "spBEAM"
+    },
+    "evmVersion": "paris",
+    "libraries": {},
+    "metadata": {
+      "bytecodeHash": "ipfs"
+    },
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "remappings": []
+  },
+  "sources": {
+    "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": {
+      "keccak256": "0xdb4d24ee2c087c391d587cd17adfe5b3f9d93b3110b1388c2ab6c7c0ad1dcd05",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://ab7b6d5b9e2b88176312967fe0f0e78f3d9a1422fa5e4b64e2440c35869b5d08",
+        "dweb:/ipfs/QmXKYWWyzcLg1B2k7Sb1qkEXgLCYfXecR9wYW5obRzWP1Q"
+      ]
+    },
+    "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol": {
+      "keccak256": "0x574a7451e42724f7de29e2855c392a8a5020acd695169466a18459467d719d63",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://5bc189f63b639ee173dd7b6fecc39baf7113bf161776aea22b34c57fdd1872ec",
+        "dweb:/ipfs/QmZAf2VtjDLRULqjJkde6LNsxAg12tUqpPqgUQQZbAjgtZ"
+      ]
+    },
+    "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol": {
+      "keccak256": "0xfcd09c2aa8cc3f93e12545454359f901965db312bc03833daf84de0c03e05022",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://07701188648d2ab83dab1037808298585264559bddf243bd8929037adcb984b0",
+        "dweb:/ipfs/QmavmG5REdHCAWsZ8Cag26BCxAq27DRKGxr3uBg5ZYxQ51"
+      ]
+    },
+    "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": {
+      "keccak256": "0xdbef5f0c787055227243a7318ef74c8a5a1108ca3a07f2b3a00ef67769e1e397",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://08e39f23d5b4692f9a40803e53a8156b72b4c1f9902a88cd65ba964db103dab9",
+        "dweb:/ipfs/QmPKn6EYDgpga7KtpkA8wV2yJCYGMtc9K4LkJfhKX2RVSV"
+      ]
+    },
+    "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol": {
+      "keccak256": "0xa6bf6b7efe0e6625a9dcd30c5ddf52c4c24fe8372f37c7de9dbf5034746768d5",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://8c353ee3705bbf6fadb84c0fb10ef1b736e8ca3ca1867814349d1487ed207beb",
+        "dweb:/ipfs/QmcugaPssrzGGE8q4YZKm2ZhnD3kCijjcgdWWg76nWt3FY"
+      ]
+    },
+    "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol": {
+      "keccak256": "0x361126a17677994081cd9cb69c3f50cffff6e920d25cb7e428acdb1ae41d1866",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://19ae787a7dd001269cd60a394b1a5261b78925a0fc3a6f927beb2986a9aa56cf",
+        "dweb:/ipfs/QmYLfXiuKmcRgTDBEDXMMjXU8t6JxsspUmjxYzqWS55oEv"
+      ]
+    },
+    "@openzeppelin/contracts/interfaces/IERC1967.sol": {
+      "keccak256": "0xbf2aefe54b76d7f7bcd4f6da1080b7b1662611937d870b880db584d09cea56b5",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://f5e7e2f12e0feec75296e57f51f82fdaa8bd1551f4b8cc6560442c0bf60f818c",
+        "dweb:/ipfs/QmcW9wDMaQ8RbQibMarfp17a3bABzY5KraWe2YDwuUrUoz"
+      ]
+    },
+    "@openzeppelin/contracts/interfaces/draft-IERC1822.sol": {
+      "keccak256": "0x82f757819bf2429a0d4db141b99a4bbe5039e4ef86dfb94e2e6d40577ed5b28b",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://37c30ed931e19fb71fdb806bb504cfdb9913b7127545001b64d4487783374422",
+        "dweb:/ipfs/QmUBHpv4hm3ZmwJ4GH8BeVzK4mv41Q6vBbWXxn8HExPXza"
+      ]
+    },
+    "@openzeppelin/contracts/interfaces/draft-IERC6093.sol": {
+      "keccak256": "0x19fdfb0f3b89a230e7dbd1cf416f1a6b531a3ee5db4da483f946320fc74afc0e",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://3490d794728f5bfecb46820431adaff71ba374141545ec20b650bb60353fac23",
+        "dweb:/ipfs/QmPsfxjVpMcZbpE7BH93DzTpEaktESigEw4SmDzkXuJ4WR"
+      ]
+    },
+    "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol": {
+      "keccak256": "0xa1ad192cd45317c788618bef5cb1fb3ca4ce8b230f6433ac68cc1d850fb81618",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://b43447bb85a53679d269a403c693b9d88d6c74177dfb35eddca63abaf7cf110a",
+        "dweb:/ipfs/QmXSDmpd4bNZj1PDgegr6C4w1jDaWHXCconC3rYiw9TSkQ"
+      ]
+    },
+    "@openzeppelin/contracts/proxy/beacon/IBeacon.sol": {
+      "keccak256": "0x20462ddb2665e9521372c76b001d0ce196e59dbbd989de9af5576cad0bd5628b",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://f417fd12aeec8fbfaceaa30e3a08a0724c0bc39de363e2acf6773c897abbaf6d",
+        "dweb:/ipfs/QmU4Hko6sApdweVM92CsiuLKkCk8HfyBeutF89PCTz5Tye"
+      ]
+    },
+    "@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "keccak256": "0x74ed01eb66b923d0d0cfe3be84604ac04b76482a55f9dd655e1ef4d367f95bc2",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://5282825a626cfe924e504274b864a652b0023591fa66f06a067b25b51ba9b303",
+        "dweb:/ipfs/QmeCfPykghhMc81VJTrHTC7sF6CRvaA1FXVq2pJhwYp1dV"
+      ]
+    },
+    "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
+      "keccak256": "0xd6fa4088198f04eef10c5bce8a2f4d60554b7ec4b987f684393c01bf79b94d9f",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://f95ee0bbd4dd3ac730d066ba3e785ded4565e890dbec2fa7d3b9fe3bad9d0d6e",
+        "dweb:/ipfs/QmSLr6bHkPFWT7ntj34jmwfyskpwo97T9jZUrk5sz3sdtR"
+      ]
+    },
+    "@openzeppelin/contracts/utils/Address.sol": {
+      "keccak256": "0x6d0ae6e206645341fd122d278c2cb643dea260c190531f2f3f6a0426e77b00c0",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://032d1201d839435be2c85b72e33206b3ea980c569d6ebf7fa57d811ab580a82f",
+        "dweb:/ipfs/QmeqQjAtMvdZT2tG7zm39itcRJkuwu8AEReK6WRnLJ18DD"
+      ]
+    },
+    "@openzeppelin/contracts/utils/Errors.sol": {
+      "keccak256": "0x6afa713bfd42cf0f7656efa91201007ac465e42049d7de1d50753a373648c123",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://ba1d02f4847670a1b83dec9f7d37f0b0418d6043447b69f3a29a5f9efc547fcf",
+        "dweb:/ipfs/QmQ7iH2keLNUKgq2xSWcRmuBE5eZ3F5whYAkAGzCNNoEWB"
+      ]
+    },
+    "@openzeppelin/contracts/utils/StorageSlot.sol": {
+      "keccak256": "0xcf74f855663ce2ae00ed8352666b7935f6cddea2932fdf2c3ecd30a9b1cd0e97",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://9f660b1f351b757dfe01438e59888f31f33ded3afcf5cb5b0d9bf9aa6f320a8b",
+        "dweb:/ipfs/QmarDJ5hZEgBtCmmrVzEZWjub9769eD686jmzb2XpSU1cM"
+      ]
+    },
+    "contracts/spBEAM/spBEAM.sol": {
+      "keccak256": "0xb967abd8ae4d126144ec4e626d6da13cabc8a5d0c52f4159edd7a497fddce60c",
+      "license": "MIT",
+      "urls": [
+        "bzz-raw://5ff04a0edd7defbf6b20c1111b300310570aee70ecb5a5e49a7198aa9298d42a",
+        "dweb:/ipfs/QmNxREdKVsyDEpwDND6U6Cee8swzUcrHsGXPwLSdYdvUc5"
+      ]
+    }
+  },
+  "version": 1
+}
