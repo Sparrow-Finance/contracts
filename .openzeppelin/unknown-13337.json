@@ -106,7 +106,7 @@
             "label": "unlockRequests",
             "offset": 0,
             "slot": "11",
-            "type": "t_mapping(t_address,t_array(t_struct(UnlockRequest)2463_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(UnlockRequest)6350_storage)dyn_storage)",
             "contract": "spBEAM",
             "src": "contracts\\spBEAM\\spBEAM.sol:93"
           }
@@ -218,13 +218,440 @@
             "label": "uint64",
             "numberOfBytes": "8"
           },
+          "t_array(t_struct(UnlockRequest)6350_storage)dyn_storage": {
+            "label": "struct spBEAM.UnlockRequest[]",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_struct(UnlockRequest)6350_storage)dyn_storage)": {
+            "label": "mapping(address => struct spBEAM.UnlockRequest[])",
+            "numberOfBytes": "32"
+          },
+          "t_struct(UnlockRequest)6350_storage": {
+            "label": "struct spBEAM.UnlockRequest",
+            "members": [
+              {
+                "label": "spBeamAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "expiryTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:33",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:35",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:37",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:39",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "73e9a6f70831c1a503570f48102aea6ca01bc5701b4e885f7b89200651e5ace7": {
+      "address": "0x30F0cF572CeE612F2355cE6eae3163b637fCAEAA",
+      "txHash": "0xa7b563b351a56e1278ed20e95b8efbc791d5400793d20a69c85b674f9319edb1",
+      "layout": {
+        "solcVersion": "0.8.22",
+        "storage": [
+          {
+            "label": "governance",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:45"
+          },
+          {
+            "label": "pendingGovernance",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:48"
+          },
+          {
+            "label": "totalPooledBEAM",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:51"
+          },
+          {
+            "label": "protocolFeeBasisPoints",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:54"
+          },
+          {
+            "label": "daoFeeBasisPoints",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:57"
+          },
+          {
+            "label": "devFeeBasisPoints",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:60"
+          },
+          {
+            "label": "accumulatedDaoFees",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:71"
+          },
+          {
+            "label": "accumulatedDevFees",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:74"
+          },
+          {
+            "label": "minStakeAmount",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:77"
+          },
+          {
+            "label": "unlockPeriod",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:80"
+          },
+          {
+            "label": "claimWindow",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:83"
+          },
+          {
+            "label": "unlockRequests",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_array(t_struct(UnlockRequest)2463_storage)dyn_storage)",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:93"
+          },
+          {
+            "label": "sparrowSwapRouter",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_address",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:103"
+          },
+          {
+            "label": "reserveRatio",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:109"
+          },
+          {
+            "label": "autoStakeThreshold",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:112"
+          },
+          {
+            "label": "autoStakingEnabled",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_bool",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:115"
+          },
+          {
+            "label": "currentValidatorID",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_bytes32",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:118"
+          },
+          {
+            "label": "delegations",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_array(t_struct(Delegation)2505_storage)dyn_storage",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:130"
+          },
+          {
+            "label": "totalStakedWithValidators",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_uint256",
+            "contract": "spBEAM",
+            "src": "contracts\\spBEAM\\spBEAM_WithValidatorLogic.sol:133"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)156_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(InitializableStorage)7_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)351_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)415_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_struct(Delegation)2505_storage)dyn_storage": {
+            "label": "struct spBEAM.Delegation[]",
+            "numberOfBytes": "32"
+          },
           "t_array(t_struct(UnlockRequest)2463_storage)dyn_storage": {
             "label": "struct spBEAM.UnlockRequest[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
             "numberOfBytes": "32"
           },
           "t_mapping(t_address,t_array(t_struct(UnlockRequest)2463_storage)dyn_storage)": {
             "label": "mapping(address => struct spBEAM.UnlockRequest[])",
             "numberOfBytes": "32"
+          },
+          "t_struct(Delegation)2505_storage": {
+            "label": "struct spBEAM.Delegation",
+            "members": [
+              {
+                "label": "validationID",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "delegationID",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "stakedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "active",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
           },
           "t_struct(UnlockRequest)2463_storage": {
             "label": "struct spBEAM.UnlockRequest",
@@ -249,6 +676,10 @@
               }
             ],
             "numberOfBytes": "96"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
           }
         },
         "namespaces": {

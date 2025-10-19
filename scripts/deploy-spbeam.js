@@ -12,7 +12,10 @@ async function main() {
 
   // Deploy UUPS proxy
   console.log("⏳ Deploying spBEAM proxy (UUPS)...");
-  const SpBEAM = await hre.ethers.getContractFactory("spBEAM");
+  // Change contract path below to deploy different versions:
+  // "contracts/spBEAM/spBEAM.sol:spBEAM" = Basic version (no validator logic)
+  // "contracts/spBEAM/spBEAM_WithValidatorLogic.sol:spBEAM" = With validator staking
+  const SpBEAM = await hre.ethers.getContractFactory("contracts/spBEAM/spBEAM_WithValidatorLogic.sol:spBEAM");
   const proxy = await hre.upgrades.deployProxy(SpBEAM, [], {
     kind: "uups",
     initializer: "initialize",

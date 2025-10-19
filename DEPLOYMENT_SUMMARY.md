@@ -10,7 +10,7 @@
 
 ### ✅ Contract Development
 - Created simplified liquid staking contract (553 lines)
-- Implemented 3-way fee structure (5% validators + 2.5% DAO + 2.5% dev)
+- Implemented 3-way fee structure (5% DAO + 3% Dev)
 - Added unlock system (60s period + 7-day claim window)
 - Added expired unlock recovery mechanism
 - Comprehensive error handling and security features
