@@ -58,6 +58,8 @@ contract spAVAX_V1 is
     /// @notice Development fund fee (3% = 300 basis points out of 10000)
     uint256 public devFeeBasisPoints;
 
+    uint256 public totalLockedInUnlocks;
+
     uint256 public constant BASIS_POINTS = 10000;
     uint256 public constant MAX_TOTAL_FEE = 1000; // Max 10% total fees (CLARITY Act)
     uint256 public constant MIN_UNLOCK_PERIOD = 7 days;
@@ -96,56 +98,20 @@ contract spAVAX_V1 is
     // EVENTS
     // ============================================
 
-    event Staked(
-        address indexed user,
-        uint256 avaxAmount,
-        uint256 spAvaxAmount
-    );
-    event UnlockRequested(
-        address indexed user,
-        uint256 spAvaxAmount,
-        uint256 avaxAmount,
-        uint256 unlockTime,
-        uint256 expiryTime
-    );
-    event Unstaked(
-        address indexed user,
-        uint256 spAvaxAmount,
-        uint256 avaxAmount
-    );
-    event UnlockCancelled(
-        address indexed user,
-        uint256 index,
-        uint256 spAvaxAmount
-    );
-    event UnlockExpired(
-        address indexed user,
-        uint256 index,
-        uint256 spAvaxAmount
-    );
-    event RewardsAdded(
-        uint256 totalReward,
-        uint256 userReward,
-        uint256 daoFee,
-        uint256 devFee
-    );
+    event Staked(address indexed user, uint256 avaxAmount, uint256 spAvaxAmount);
+    event UnlockRequested(address indexed user, uint256 spAvaxAmount, uint256 avaxAmount, uint256 unlockTime, uint256 expiryTime);
+    event Unstaked(address indexed user, uint256 spAvaxAmount, uint256 avaxAmount);
+    event UnlockCancelled(address indexed user, uint256 index, uint256 spAvaxAmount);
+    event UnlockExpired(address indexed user, uint256 index, uint256 spAvaxAmount);
+    event RewardsAdded(uint256 totalReward, uint256 userReward, uint256 daoFee, uint256 devFee);
     event Withdrawn(address indexed to, uint256 amount);
     event Deposited(address indexed from, uint256 amount);
     event DaoFeesCollected(address indexed to, uint256 amount);
     event DevFeesCollected(address indexed to, uint256 amount);
-    event AllFeesCollected(
-        address indexed to,
-        uint256 daoAmount,
-        uint256 devAmount,
-        uint256 totalAmount
-    );
+    event AllFeesCollected(address indexed to, uint256 daoAmount, uint256 devAmount, uint256 totalAmount);
     event UnlockPeriodUpdated(uint256 oldPeriod, uint256 newPeriod);
     event ClaimWindowUpdated(uint256 oldWindow, uint256 newWindow);
-    event FeeStructureUpdated(
-        uint256 protocolFee,
-        uint256 daoFee,
-        uint256 devFee
-    );
+    event FeeStructureUpdated(uint256 protocolFee, uint256 daoFee, uint256 devFee);
     event MinStakeAmountUpdated(uint256 oldAmount, uint256 newAmount);
     event GovernanceTransferInitiated(address indexed from, address indexed to);
     event GovernanceTransferred(address indexed from, address indexed to);
@@ -182,6 +148,7 @@ contract spAVAX_V1 is
         unlockPeriod = 60; // 60 seconds for testing
         claimWindow = 7 days;
         totalPooledAVAX = 0;
+        totalLockedInUnlocks = 0;
     }
 
     // ============================================
@@ -202,27 +169,16 @@ contract spAVAX_V1 is
      * @param minSpAvaxOut Minimum spAVAX to receive (slippage protection)
      * @return spAvaxAmount Amount of spAVAX minted
      */
-    function stake(
-        uint256 minSpAvaxOut
-    )
-        external
-        payable
-        nonReentrant
-        whenNotPaused
-        returns (uint256 spAvaxAmount)
-    {
+    function stake(uint256 minSpAvaxOut) external payable nonReentrant whenNotPaused returns (uint256 spAvaxAmount) {
         require(msg.value >= minStakeAmount, "Below minimum stake");
-        if (totalSupply() == 0) {
+        
+        if (totalSupply() == 0 || totalPooledAVAX == 0) {
             spAvaxAmount = msg.value;
         } else {
-            if (totalPooledAVAX == 0) {
-                spAvaxAmount = msg.value;
-            } else {
-                spAvaxAmount = (msg.value * totalSupply()) / totalPooledAVAX;
-            }
-            require(spAvaxAmount > 0, "Insufficient shares minted");
+            spAvaxAmount = (msg.value * totalSupply()) / totalPooledAVAX;
         }
-
+        
+        require(spAvaxAmount > 0, "Insufficient shares minted");
         require(spAvaxAmount >= minSpAvaxOut, "Slippage too high");
 
         totalPooledAVAX += msg.value;
@@ -238,25 +194,16 @@ contract spAVAX_V1 is
      * @param minAvaxOut Minimum AVAX to receive (slippage protection)
      * @return avaxAmount Amount of AVAX you'll receive after unlock period
      */
-    function requestUnlock(
-        uint256 spAvaxAmount,
-        uint256 minAvaxOut
-    ) external nonReentrant whenNotPaused returns (uint256 avaxAmount) {
+    function requestUnlock(uint256 spAvaxAmount, uint256 minAvaxOut) external nonReentrant whenNotPaused returns (uint256 avaxAmount) {
         require(spAvaxAmount > 0, "Amount must be > 0");
         require(balanceOf(msg.sender) >= spAvaxAmount, "Insufficient balance");
         require(totalSupply() > 0, "No shares exist");
-        require(
-            unlockRequests[msg.sender].length < MAX_UNLOCK_REQUESTS,
-            "Too many pending requests"
-        );
+        require(unlockRequests[msg.sender].length < MAX_UNLOCK_REQUESTS, "Too many pending requests");
 
-        // Calculate AVAX to return based on current exchange rate
         avaxAmount = (spAvaxAmount * totalPooledAVAX) / totalSupply();
         require(avaxAmount > 0, "Invalid AVAX amount");
-
         require(avaxAmount >= minAvaxOut, "Slippage too high");
 
-        // Transfer spAVAX to contract (locked during unlock period)
         _transfer(msg.sender, address(this), spAvaxAmount);
 
         uint256 unlockTime = block.timestamp + unlockPeriod;
@@ -271,13 +218,9 @@ contract spAVAX_V1 is
             })
         );
 
-        emit UnlockRequested(
-            msg.sender,
-            spAvaxAmount,
-            avaxAmount,
-            unlockTime,
-            expiryTime
-        );
+        totalLockedInUnlocks += avaxAmount;
+
+        emit UnlockRequested(msg.sender, spAvaxAmount, avaxAmount, unlockTime, expiryTime);
         return avaxAmount;
     }
 
@@ -285,41 +228,29 @@ contract spAVAX_V1 is
      * @notice Claim unlocked AVAX after unlock period has passed
      * @param requestIndex Index of the unlock request to claim
      */
-    function claimUnlock(
-        uint256 requestIndex
-    ) external nonReentrant whenNotPaused {
-        require(
-            requestIndex < unlockRequests[msg.sender].length,
-            "Invalid request index"
-        );
+    function claimUnlock(uint256 requestIndex) external nonReentrant whenNotPaused {
+        require(requestIndex < unlockRequests[msg.sender].length, "Invalid request index");
 
         UnlockRequest memory request = unlockRequests[msg.sender][requestIndex];
-        require(
-            block.timestamp >= request.unlockTime,
-            "Unlock period not finished"
-        );
+        require(block.timestamp >= request.unlockTime, "Unlock period not finished");
         require(block.timestamp <= request.expiryTime, "Claim window expired");
-
-        // ✅ Use stored AVAX amount (locked exchange rate at request time)
         require(request.avaxAmount > 0, "Invalid AVAX amount");
         require(
-            address(this).balance >= request.avaxAmount,
+            address(this).balance >= request.avaxAmount + accumulatedDaoFees + accumulatedDevFees,
             "Insufficient liquidity"
         );
 
-        // Remove unlock request (swap with last and pop)
-        unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][
-            unlockRequests[msg.sender].length - 1
-        ];
+        uint256 lastIndex = unlockRequests[msg.sender].length - 1;
+        if (requestIndex != lastIndex) {
+            unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][lastIndex];
+        }
         unlockRequests[msg.sender].pop();
 
-        // Update state BEFORE external call (CEI pattern)
         totalPooledAVAX -= request.avaxAmount;
+        totalLockedInUnlocks -= request.avaxAmount;
 
-        // Burn spAVAX
         _burn(address(this), request.spAvaxAmount);
 
-        // Send AVAX to user
         (bool success, ) = msg.sender.call{value: request.avaxAmount}("");
         require(success, "Transfer failed");
 
@@ -330,27 +261,20 @@ contract spAVAX_V1 is
      * @notice Cancel an unlock request and get spAVAX back (before expiry)
      * @param requestIndex Index of the unlock request to cancel
      */
-    function cancelUnlock(
-        uint256 requestIndex
-    ) external nonReentrant whenNotPaused {
-        require(
-            requestIndex < unlockRequests[msg.sender].length,
-            "Invalid request index"
-        );
+    function cancelUnlock(uint256 requestIndex) external nonReentrant whenNotPaused {
+        require(requestIndex < unlockRequests[msg.sender].length, "Invalid request index");
 
         UnlockRequest memory request = unlockRequests[msg.sender][requestIndex];
-        require(
-            block.timestamp <= request.expiryTime,
-            "Request expired, use claimExpired"
-        );
+        require(block.timestamp <= request.expiryTime, "Request expired, use claimExpired");
 
-        // Remove unlock request
-        unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][
-            unlockRequests[msg.sender].length - 1
-        ];
+        uint256 lastIndex = unlockRequests[msg.sender].length - 1;
+        if (requestIndex != lastIndex) {
+            unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][lastIndex];
+        }
         unlockRequests[msg.sender].pop();
 
-        // Return spAVAX to user
+        totalLockedInUnlocks -= request.avaxAmount;
+
         _transfer(address(this), msg.sender, request.spAvaxAmount);
 
         emit UnlockCancelled(msg.sender, requestIndex, request.spAvaxAmount);
@@ -360,24 +284,20 @@ contract spAVAX_V1 is
      * @notice Claim expired unlock request (returns spAVAX after claim window expires)
      * @param requestIndex Index of the expired unlock request
      */
-    function claimExpired(
-        uint256 requestIndex
-    ) external nonReentrant whenNotPaused {
-        require(
-            requestIndex < unlockRequests[msg.sender].length,
-            "Invalid request index"
-        );
+    function claimExpired(uint256 requestIndex) external nonReentrant whenNotPaused {
+        require(requestIndex < unlockRequests[msg.sender].length, "Invalid request index");
 
         UnlockRequest memory request = unlockRequests[msg.sender][requestIndex];
         require(block.timestamp > request.expiryTime, "Not expired yet");
 
-        // Remove unlock request
-        unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][
-            unlockRequests[msg.sender].length - 1
-        ];
+        uint256 lastIndex = unlockRequests[msg.sender].length - 1;
+        if (requestIndex != lastIndex) {
+            unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][lastIndex];
+        }
         unlockRequests[msg.sender].pop();
 
-        // Return spAVAX to user
+        totalLockedInUnlocks -= request.avaxAmount;
+
         _transfer(address(this), msg.sender, request.spAvaxAmount);
 
         emit UnlockExpired(msg.sender, requestIndex, request.spAvaxAmount);
@@ -388,9 +308,7 @@ contract spAVAX_V1 is
      * @param user User address
      * @return count Number of pending requests
      */
-    function getUnlockRequestCount(
-        address user
-    ) external view returns (uint256 count) {
+    function getUnlockRequestCount(address user) external view returns (uint256) {
         return unlockRequests[user].length;
     }
 
@@ -405,10 +323,7 @@ contract spAVAX_V1 is
      * @return isReady Whether the unlock period has passed
      * @return isExpired Whether the claim window has expired
      */
-    function getUnlockRequest(
-        address user,
-        uint256 requestIndex
-    )
+    function getUnlockRequest(address user, uint256 requestIndex)
         external
         view
         returns (
@@ -420,10 +335,7 @@ contract spAVAX_V1 is
             bool isExpired
         )
     {
-        require(
-            requestIndex < unlockRequests[user].length,
-            "Invalid request index"
-        );
+        require(requestIndex < unlockRequests[user].length, "Invalid request index");
         UnlockRequest memory request = unlockRequests[user][requestIndex];
 
         return (
@@ -485,7 +397,9 @@ contract spAVAX_V1 is
      */
     function withdraw(uint256 amount) external onlyGovernance nonReentrant {
         require(amount > 0, "Amount must be > 0");
-        require(address(this).balance >= amount, "Insufficient balance");
+        
+        uint256 committedAVAX = accumulatedDaoFees + accumulatedDevFees + totalLockedInUnlocks;
+        require(address(this).balance >= amount + committedAVAX, "Insufficient liquidity after commitments");
 
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
@@ -579,16 +493,16 @@ contract spAVAX_V1 is
      * @param newDevFee Development fee in basis points
      * @dev Total fees cannot exceed 10% (1000 basis points)
      */
-    function setFeeStructure(
-        uint256 newDaoFee,
-        uint256 newDevFee
-    ) external onlyGovernance {
+    function setFeeStructure(uint256 newDaoFee, uint256 newDevFee) external onlyGovernance {
+        require(newDaoFee <= BASIS_POINTS, "DAO fee too high");
+        require(newDevFee <= BASIS_POINTS, "Dev fee too high");
+        
         uint256 totalFee = newDaoFee + newDevFee;
         require(totalFee <= MAX_TOTAL_FEE, "Total fees too high (max 10%)");
 
         daoFeeBasisPoints = newDaoFee;
         devFeeBasisPoints = newDevFee;
-        protocolFeeBasisPoints = newDaoFee + newDevFee;
+        protocolFeeBasisPoints = totalFee;
 
         emit FeeStructureUpdated(protocolFeeBasisPoints, newDaoFee, newDevFee);
     }
@@ -609,10 +523,7 @@ contract spAVAX_V1 is
      * @param newUnlockPeriod New unlock period in seconds
      */
     function setUnlockPeriod(uint256 newUnlockPeriod) external onlyGovernance {
-        require(
-            newUnlockPeriod >= MIN_UNLOCK_PERIOD,
-            "Unlock period too short"
-        );
+        require(newUnlockPeriod >= MIN_UNLOCK_PERIOD, "Unlock period too short");
         require(newUnlockPeriod <= MAX_UNLOCK_PERIOD, "Unlock period too long");
         uint256 oldPeriod = unlockPeriod;
         unlockPeriod = newUnlockPeriod;
