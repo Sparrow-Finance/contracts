@@ -67,6 +67,9 @@ contract spAVAX_V1 is
     uint256 public constant MIN_CLAIM_WINDOW = 1 hours;
     uint256 public constant MAX_CLAIM_WINDOW = 30 days;
     uint256 public constant MAX_UNLOCK_REQUESTS = 100;
+    uint256 public constant RESERVE_RATIO = 1000;
+
+    uint256 private constant PRECISION = 1e18;
 
     /// @notice Accumulated DAO treasury fees
     uint256 public accumulatedDaoFees;
@@ -172,10 +175,10 @@ contract spAVAX_V1 is
     function stake(uint256 minSpAvaxOut) external payable nonReentrant whenNotPaused returns (uint256 spAvaxAmount) {
         require(msg.value >= minStakeAmount, "Below minimum stake");
         
-        if (totalSupply() == 0 || totalPooledAVAX == 0) {
+        if (totalSupply() == 0) {
             spAvaxAmount = msg.value;
         } else {
-            spAvaxAmount = (msg.value * totalSupply()) / totalPooledAVAX;
+            spAvaxAmount = (msg.value * totalSupply() * PRECISION) / (totalPooledAVAX * PRECISION);
         }
         
         require(spAvaxAmount > 0, "Insufficient shares minted");
@@ -200,7 +203,9 @@ contract spAVAX_V1 is
         require(totalSupply() > 0, "No shares exist");
         require(unlockRequests[msg.sender].length < MAX_UNLOCK_REQUESTS, "Too many pending requests");
 
-        avaxAmount = (spAvaxAmount * totalPooledAVAX) / totalSupply();
+        uint256 exchangeRate = (totalPooledAVAX * PRECISION) / totalSupply();
+        avaxAmount = (spAvaxAmount * exchangeRate) / PRECISION;
+
         require(avaxAmount > 0, "Invalid AVAX amount");
         require(avaxAmount >= minAvaxOut, "Slippage too high");
 
@@ -354,9 +359,9 @@ contract spAVAX_V1 is
      */
     function getExchangeRate() public view returns (uint256 rate) {
         if (totalSupply() == 0 || totalPooledAVAX == 0) {
-            return 1e18; // 1:1 ratio
+            return PRECISION;
         }
-        return (totalPooledAVAX * 1e18) / totalSupply();
+        return (totalPooledAVAX * PRECISION) / totalSupply();
     }
 
     /**
@@ -397,9 +402,12 @@ contract spAVAX_V1 is
      */
     function withdraw(uint256 amount) external onlyGovernance nonReentrant {
         require(amount > 0, "Amount must be > 0");
-        
+
+        uint256 minReserve = (totalPooledAVAX * RESERVE_RATIO) / BASIS_POINTS;
         uint256 committedAVAX = accumulatedDaoFees + accumulatedDevFees + totalLockedInUnlocks;
-        require(address(this).balance >= amount + committedAVAX, "Insufficient liquidity after commitments");
+        uint256 mustKeep = committedAVAX > minReserve ? committedAVAX : minReserve;
+
+        require(address(this).balance >= amount + mustKeep, "Insufficient liquidity");
 
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
@@ -422,6 +430,7 @@ contract spAVAX_V1 is
      */
     function addRewards() external payable onlyGovernance {
         require(msg.value > 0, "Reward must be > 0");
+        require(totalSupply() > 0, "No stakers to reward");
 
         uint256 daoFee = (msg.value * daoFeeBasisPoints) / BASIS_POINTS;
         uint256 devFee = (msg.value * devFeeBasisPoints) / BASIS_POINTS;
@@ -494,8 +503,6 @@ contract spAVAX_V1 is
      * @dev Total fees cannot exceed 10% (1000 basis points)
      */
     function setFeeStructure(uint256 newDaoFee, uint256 newDevFee) external onlyGovernance {
-        require(newDaoFee <= BASIS_POINTS, "DAO fee too high");
-        require(newDevFee <= BASIS_POINTS, "Dev fee too high");
         
         uint256 totalFee = newDaoFee + newDevFee;
         require(totalFee <= MAX_TOTAL_FEE, "Total fees too high (max 10%)");
