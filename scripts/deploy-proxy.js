@@ -13,7 +13,7 @@ async function main() {
 
   // Deploy using OpenZeppelin Upgrades plugin
   console.log("⏳ Deploying spAVAX with proxy...");
-  const SpAVAX = await hre.ethers.getContractFactory("spAVAX");
+  const SpAVAX = await hre.ethers.getContractFactory("spAVAX_V1");
   
   const spavax = await upgrades.deployProxy(SpAVAX, [], {
     initializer: "initialize",
