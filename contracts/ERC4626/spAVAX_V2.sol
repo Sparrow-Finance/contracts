@@ -482,7 +482,7 @@ contract spAVAX_V2 is
      * @notice Withdraw AVAX to stake with validators
      * @param amount Amount of AVAX to withdraw
      */
-    function withdraw(uint256 amount) external onlyGovernance nonReentrant {
+    function withdrawToValidator(uint256 amount) external onlyGovernance nonReentrant {
         require(amount > 0, "Amount must be > 0");
 
         uint256 minReserve = (totalPooledAVAX * RESERVE_RATIO) / BASIS_POINTS;

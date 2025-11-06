@@ -479,7 +479,7 @@ contract spBEAM_V2 is
      * @notice Withdraw BEAM to stake with validators
      * @param amount Amount of BEAM to withdraw
      */
-    function withdraw(uint256 amount) external onlyGovernance nonReentrant {
+    function withdrawToValidator(uint256 amount) external onlyGovernance nonReentrant {
         require(amount > 0, "Amount must be > 0");
         
         uint256 committedBEAM = accumulatedDaoFees + accumulatedDevFees + totalLockedInUnlocks;
