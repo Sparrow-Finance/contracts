@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  console.log("🚀 Deploying Sparrow Finance spBEAM (UUPS Upgradeable) ...\n");
+  console.log("🚀 Deploying Sparrow Finance spBEAM_V2 (UUPS Upgradeable) ...\n");
 
   // Deployer
   const [deployer] = await hre.ethers.getSigners();
@@ -11,11 +11,13 @@ async function main() {
   console.log("💰 Balance:", hre.ethers.formatEther(balance), "BEAM\n");
 
   // Deploy UUPS proxy
-  console.log("⏳ Deploying spBEAM proxy (UUPS)...");
-  // Change contract path below to deploy different versions:
-  // "contracts/spBEAM/spBEAM.sol:spBEAM" = Basic version (no validator logic)
-  // "contracts/spBEAM/spBEAM_WithValidatorLogic.sol:spBEAM" = With validator staking
-  const SpBEAM = await hre.ethers.getContractFactory("contracts/spBEAM/spBEAM_WithValidatorLogic.sol:spBEAM");
+  console.log("⏳ Deploying spBEAM_V2 proxy (UUPS)...");
+  // spBEAM_V2 features:
+  // - ERC4626 liquid staking vault
+  // - 21-day unlock period (no expiry)
+  // - 5% DAO fee + 3% Dev fee
+  // - Upgradeable via governance
+  const SpBEAM = await hre.ethers.getContractFactory("spBEAM_V2");
   const proxy = await hre.upgrades.deployProxy(SpBEAM, [], {
     kind: "uups",
     initializer: "initialize",
@@ -44,7 +46,8 @@ async function main() {
   console.log("   Exchange Rate:", hre.ethers.formatEther(stats[2]));
   console.log("   DAO Fee:", stats[6].toString(), "bps (", Number(stats[6]) / 100, "%)");
   console.log("   Dev Fee:", stats[7].toString(), "bps (", Number(stats[7]) / 100, "%)");
-  console.log("   Unlock Period:", (await spbeam.unlockPeriod()).toString(), "seconds");
+  const unlockPeriod = await spbeam.unlockPeriod();
+  console.log("   Unlock Period:", unlockPeriod.toString(), "seconds (", Number(unlockPeriod) / 86400, "days)");
 
   console.log("\n🔗 Network:", hre.network.name);
   const currentBlock = await hre.ethers.provider.getBlockNumber();
@@ -77,7 +80,10 @@ async function main() {
     console.log("   2) Explorer link depends on network.");
   }
 
-  console.log("\n🎉 spBEAM deployment complete!");
+  console.log("   3) Update .env with: BEAM_PROXY=", proxyAddress);
+  console.log("   4) Test with: npx hardhat run scripts/test-spbeam.js --network", hre.network.name);
+  
+  console.log("\n🎉 spBEAM_V2 deployment complete!");
 }
 
 main()

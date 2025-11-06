@@ -6,11 +6,36 @@ require("dotenv").config();
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: "0.8.28",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200
+    compilers: [
+      {
+        version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200  // Default for most contracts
+          }
+        }
+      }
+    ],
+    overrides: {
+      // Special optimization for size-constrained contracts
+      "contracts/ERC4626/spBEAM_V2.sol": {
+        version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1  // Maximum size reduction (contract too large)
+          }
+        }
+      },
+      "contracts/ERC4626/spAVAX_V2.sol": {
+        version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1  // Maximum size reduction (contract too large)
+          }
+        }
       }
     }
   },
@@ -43,8 +68,19 @@ module.exports = {
   etherscan: {
     apiKey: {
       avalanche: process.env.SNOWTRACE_API_KEY || "",
-      avalancheFujiTestnet: process.env.SNOWTRACE_API_KEY || ""
-    }
+      avalancheFujiTestnet: process.env.SNOWTRACE_API_KEY || "",
+      beamTestnet: "no-api-key-needed" // Beam testnet doesn't require API key
+    },
+    customChains: [
+      {
+        network: "beamTestnet",
+        chainId: 13337,
+        urls: {
+          apiURL: "https://subnets-test.avax.network/beam/api",
+          browserURL: "https://subnets-test.avax.network/beam"
+        }
+      }
+    ]
   },
   paths: {
     sources: "./contracts",

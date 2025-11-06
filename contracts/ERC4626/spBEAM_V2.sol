@@ -68,8 +68,6 @@ contract spBEAM_V2 is
     uint256 public constant MAX_TOTAL_FEE = 1000; // Max 10% total fees
     uint256 public constant MIN_UNLOCK_PERIOD = 7 days;
     uint256 public constant MAX_UNLOCK_PERIOD = 30 days;
-    uint256 public constant MIN_CLAIM_WINDOW = 1 hours;
-    uint256 public constant MAX_CLAIM_WINDOW = 30 days;
     uint256 public constant MAX_UNLOCK_REQUESTS = 100;
 
     /// @notice Accumulated DAO treasury fees
@@ -84,37 +82,35 @@ contract spBEAM_V2 is
     /// @notice Unlock period for withdrawals (initialized in initialize())
     uint256 public unlockPeriod;
 
-    /// @notice Claim window - time after unlock to claim before expiring (initialized in initialize())
-    uint256 public claimWindow;
-
     /// @notice Struct to track unlock requests
     struct UnlockRequest {
         uint256 spBeamAmount;
         uint256 beamAmount;
         uint256 unlockTime;
-        uint256 expiryTime;
     }
 
     /// @notice Mapping of user addresses to their unlock requests
     mapping(address => UnlockRequest[]) public unlockRequests;
+
+    /// @notice Validator helper contract address (added in V3)
+    address public validatorHelper;
 
     // ============================================
     // EVENTS
     // ============================================
 
     event Staked(address indexed user, uint256 beamAmount, uint256 spBeamAmount);
-    event UnlockRequested(address indexed user, uint256 spBeamAmount, uint256 beamAmount, uint256 unlockTime, uint256 expiryTime);
+    event UnlockRequested(address indexed user, uint256 spBeamAmount, uint256 beamAmount, uint256 unlockTime);
     event Unstaked(address indexed user, uint256 spBeamAmount, uint256 beamAmount);
-    event UnlockCancelled(address indexed user, uint256 index, uint256 spBeamAmount);
-    event UnlockExpired(address indexed user, uint256 index, uint256 spBeamAmount);
     event RewardsAdded(uint256 totalReward, uint256 userReward, uint256 daoFee, uint256 devFee);
     event Withdrawn(address indexed to, uint256 amount);
     event Deposited(address indexed from, uint256 amount);
     event DaoFeesCollected(address indexed to, uint256 amount);
     event DevFeesCollected(address indexed to, uint256 amount);
     event AllFeesCollected(address indexed to, uint256 daoAmount, uint256 devAmount, uint256 totalAmount);
+    event BeamSentToHelper(uint256 amount);
+    event ValidatorHelperSet(address indexed helper);
     event UnlockPeriodUpdated(uint256 oldPeriod, uint256 newPeriod);
-    event ClaimWindowUpdated(uint256 oldWindow, uint256 newWindow);
     event FeeStructureUpdated(uint256 protocolFee, uint256 daoFee, uint256 devFee);
     event MinStakeAmountUpdated(uint256 oldAmount, uint256 newAmount);
     event GovernanceTransferInitiated(address indexed from, address indexed to);
@@ -135,8 +131,7 @@ contract spBEAM_V2 is
      */
     function initialize() public initializer {
         __ERC20_init("Sparrow Staked BEAM", "spBEAM");
-        // Note: We don't call __ERC4626_init() because BEAM is native (not ERC20)
-        // We override asset() and totalAssets() instead
+        __ERC4626_init(IERC20(address(0))); // BEAM is native, not ERC20 - we override asset()
         __ReentrancyGuard_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
@@ -151,8 +146,7 @@ contract spBEAM_V2 is
 
         // Initialize parameters
         minStakeAmount = 0.1 ether;
-        unlockPeriod = 60; // 60 seconds for testing
-        claimWindow = 7 days;
+        unlockPeriod = 1814400; // 21 days
         totalPooledBEAM = 0;
         totalLockedInUnlocks = 0;
     }
@@ -291,20 +285,18 @@ contract spBEAM_V2 is
         _transfer(msg.sender, address(this), spBeamAmount);
 
         uint256 unlockTime = block.timestamp + unlockPeriod;
-        uint256 expiryTime = unlockTime + claimWindow;
 
         unlockRequests[msg.sender].push(
             UnlockRequest({
                 spBeamAmount: spBeamAmount,
                 beamAmount: beamAmount,
-                unlockTime: unlockTime,
-                expiryTime: expiryTime
+                unlockTime: unlockTime
             })
         );
 
         totalLockedInUnlocks += beamAmount;
 
-        emit UnlockRequested(msg.sender, spBeamAmount, beamAmount, unlockTime, expiryTime);
+        emit UnlockRequested(msg.sender, spBeamAmount, beamAmount, unlockTime);
         return beamAmount;
     }
 
@@ -317,7 +309,6 @@ contract spBEAM_V2 is
 
         UnlockRequest memory request = unlockRequests[msg.sender][requestIndex];
         require(block.timestamp >= request.unlockTime, "Unlock period not finished");
-        require(block.timestamp <= request.expiryTime, "Claim window expired");
         require(request.beamAmount > 0, "Invalid BEAM amount");
         require(
             address(this).balance >= request.beamAmount + accumulatedDaoFees + accumulatedDevFees,
@@ -341,51 +332,6 @@ contract spBEAM_V2 is
         emit Unstaked(msg.sender, request.spBeamAmount, request.beamAmount);
     }
 
-    /**
-     * @notice Cancel an unlock request and get spBEAM back (before expiry)
-     * @param requestIndex Index of the unlock request to cancel
-     */
-    function cancelUnlock(uint256 requestIndex) external nonReentrant whenNotPaused {
-        require(requestIndex < unlockRequests[msg.sender].length, "Invalid request index");
-
-        UnlockRequest memory request = unlockRequests[msg.sender][requestIndex];
-        require(block.timestamp <= request.expiryTime, "Request expired, use claimExpired");
-
-        uint256 lastIndex = unlockRequests[msg.sender].length - 1;
-        if (requestIndex != lastIndex) {
-            unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][lastIndex];
-        }
-        unlockRequests[msg.sender].pop();
-
-        totalLockedInUnlocks -= request.beamAmount;
-
-        _transfer(address(this), msg.sender, request.spBeamAmount);
-
-        emit UnlockCancelled(msg.sender, requestIndex, request.spBeamAmount);
-    }
-
-    /**
-     * @notice Claim expired unlock request (returns spBEAM after claim window expires)
-     * @param requestIndex Index of the expired unlock request
-     */
-    function claimExpired(uint256 requestIndex) external nonReentrant whenNotPaused {
-        require(requestIndex < unlockRequests[msg.sender].length, "Invalid request index");
-
-        UnlockRequest memory request = unlockRequests[msg.sender][requestIndex];
-        require(block.timestamp > request.expiryTime, "Not expired yet");
-
-        uint256 lastIndex = unlockRequests[msg.sender].length - 1;
-        if (requestIndex != lastIndex) {
-            unlockRequests[msg.sender][requestIndex] = unlockRequests[msg.sender][lastIndex];
-        }
-        unlockRequests[msg.sender].pop();
-
-        totalLockedInUnlocks -= request.beamAmount;
-
-        _transfer(address(this), msg.sender, request.spBeamAmount);
-
-        emit UnlockExpired(msg.sender, requestIndex, request.spBeamAmount);
-    }
 
     /**
      * @notice Get number of pending unlock requests for a user
@@ -403,9 +349,7 @@ contract spBEAM_V2 is
      * @return spBeamAmount Amount of spBEAM locked
      * @return beamAmount Amount of BEAM to receive (locked rate)
      * @return unlockTime Timestamp when unlock is available
-     * @return expiryTime Timestamp when claim window expires
      * @return isReady Whether the unlock period has passed
-     * @return isExpired Whether the claim window has expired
      */
     function getUnlockRequest(address user, uint256 requestIndex)
         external
@@ -414,9 +358,7 @@ contract spBEAM_V2 is
             uint256 spBeamAmount,
             uint256 beamAmount,
             uint256 unlockTime,
-            uint256 expiryTime,
-            bool isReady,
-            bool isExpired
+            bool isReady
         )
     {
         require(requestIndex < unlockRequests[user].length, "Invalid request index");
@@ -426,9 +368,7 @@ contract spBEAM_V2 is
             request.spBeamAmount,
             request.beamAmount,
             request.unlockTime,
-            request.expiryTime,
-            block.timestamp >= request.unlockTime,
-            block.timestamp > request.expiryTime
+            block.timestamp >= request.unlockTime
         );
     }
 
@@ -497,6 +437,42 @@ contract spBEAM_V2 is
     function deposit() external payable onlyGovernance {
         require(msg.value > 0, "Amount must be > 0");
         emit Deposited(msg.sender, msg.value);
+    }
+
+    /**
+     * @notice Send BEAM to validator helper for delegation
+     * @param amount Amount of BEAM to send
+     */
+    function sendToValidatorHelper(uint256 amount) 
+        external 
+    onlyGovernance 
+    nonReentrant 
+    {
+    require(amount > 0, "Amount must be > 0");
+    require(address(this).balance >= amount, "Insufficient balance");
+    require(validatorHelper != address(0), "Helper not set");
+    
+    uint256 availableToStake = totalPooledBEAM - totalLockedInUnlocks;
+    require(amount <= availableToStake, "Exceeds available");
+    
+    // Send BEAM to helper
+    (bool success, ) = validatorHelper.call{value: amount}("");
+    require(success, "Transfer failed");
+    
+    emit BeamSentToHelper(amount);
+    }
+
+    /**
+     * @notice Set validator helper address (governance only)
+     * @param _helper Helper contract address
+     */
+    function setValidatorHelper(address _helper) 
+        external 
+    onlyGovernance 
+    {
+    require(_helper != address(0), "Invalid address");
+    validatorHelper = _helper;
+    emit ValidatorHelperSet(_helper);
     }
 
     /**
@@ -614,17 +590,6 @@ contract spBEAM_V2 is
         emit UnlockPeriodUpdated(oldPeriod, newUnlockPeriod);
     }
 
-    /**
-     * @notice Update claim window
-     * @param newClaimWindow New claim window in seconds
-     */
-    function setClaimWindow(uint256 newClaimWindow) external onlyGovernance {
-        require(newClaimWindow >= MIN_CLAIM_WINDOW, "Claim window too short");
-        require(newClaimWindow <= MAX_CLAIM_WINDOW, "Claim window too long");
-        uint256 oldWindow = claimWindow;
-        claimWindow = newClaimWindow;
-        emit ClaimWindowUpdated(oldWindow, newClaimWindow);
-    }
 
     /**
      * @notice Emergency pause (stops staking/unstaking)

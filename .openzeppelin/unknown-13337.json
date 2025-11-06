@@ -5,6 +5,21 @@
       "address": "0x21e9726d777400c5dcBF65cF595125B21359A1DD",
       "txHash": "0x9c90d28c58b82457fa3e8c74bc9d0f216e007451c0047122f5ec7c148cfe4a9d",
       "kind": "uups"
+    },
+    {
+      "address": "0x4d3F457c9a6Fd430F661283d92b9E7aA8ae638B8",
+      "txHash": "0x3cbc5db3c0ea9af9acd563cdce3729e7dd7451e77eefc02e49ff420103760424",
+      "kind": "uups"
+    },
+    {
+      "address": "0xD0860B697825b80C6Cf21aB0Bb9B02A1Dc672F83",
+      "txHash": "0x3187c6ca5c5fffbb1229f268d65d343072aecd88efb6e7663beb965fc1f8e1f7",
+      "kind": "uups"
+    },
+    {
+      "address": "0x1bc829d35A12520FB21429E5B10845f71aC864B2",
+      "txHash": "0x812e115eb6ae4acabf121aa56df23273214cd931434ba6632b7e93ad6772f461",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -743,6 +758,1389 @@
               "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:40",
               "offset": 0,
               "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "c560c4075bba4c20f7fee90a834b03ad41191fc96255cb74784b133e342dfbca": {
+      "address": "0xC54f630370aD9Ad9855bEf2932425888D307Ccad",
+      "txHash": "0xb02fe6bb9756410550adef38fa1d533017b919f5f5af925f6fd5faacb31e130b",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "governance",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:47"
+          },
+          {
+            "label": "pendingGovernance",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:50"
+          },
+          {
+            "label": "totalPooledBEAM",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:53"
+          },
+          {
+            "label": "protocolFeeBasisPoints",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:56"
+          },
+          {
+            "label": "daoFeeBasisPoints",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:59"
+          },
+          {
+            "label": "devFeeBasisPoints",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:62"
+          },
+          {
+            "label": "totalLockedInUnlocks",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:64"
+          },
+          {
+            "label": "accumulatedDaoFees",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:74"
+          },
+          {
+            "label": "accumulatedDevFees",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:77"
+          },
+          {
+            "label": "minStakeAmount",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:80"
+          },
+          {
+            "label": "unlockPeriod",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:83"
+          },
+          {
+            "label": "unlockRequests",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_array(t_struct(UnlockRequest)7388_storage)dyn_storage)",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:93"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)1140": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)156_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(ERC4626Storage)340_storage": {
+            "label": "struct ERC4626Upgradeable.ERC4626Storage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_contract(IERC20)1140",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_underlyingDecimals",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)7_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)603_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)667_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          },
+          "t_array(t_struct(UnlockRequest)7388_storage)dyn_storage": {
+            "label": "struct spBEAM_V2.UnlockRequest[]",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_struct(UnlockRequest)7388_storage)dyn_storage)": {
+            "label": "mapping(address => struct spBEAM_V2.UnlockRequest[])",
+            "numberOfBytes": "32"
+          },
+          "t_struct(UnlockRequest)7388_storage": {
+            "label": "struct spBEAM_V2.UnlockRequest",
+            "members": [
+              {
+                "label": "spBeamAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "beamAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC4626": [
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_asset",
+              "type": "t_contract(IERC20)1140",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\extensions\\ERC4626Upgradeable.sol:56",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_underlyingDecimals",
+              "type": "t_uint8",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\extensions\\ERC4626Upgradeable.sol:57",
+              "offset": 20,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:33",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:35",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:37",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:39",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "29c835488aa55a35b254a29e7382614d03dd669eb7eda7c32904f828a0451c75": {
+      "address": "0x30C2Ad81ce324dAe1CbE9B7F485716f984433AF8",
+      "txHash": "0xcfc785ab09a6099590fabdc32404b0b0d41fe5147261c0c198d205d04170f516",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "spBEAM",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:102"
+          },
+          {
+            "label": "beamStaking",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBeamStaking)10703",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:105"
+          },
+          {
+            "label": "validators",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint256,t_struct(ValidatorInfo)10742_storage)",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:119"
+          },
+          {
+            "label": "validatorCount",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:122"
+          },
+          {
+            "label": "validatorExists",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_uint256,t_bool)",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:125"
+          },
+          {
+            "label": "activeValidatorIds",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_array(t_uint256)dyn_storage",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:128"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)7_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)667_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBeamStaking)10703": {
+            "label": "contract IBeamStaking",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint256,t_bool)": {
+            "label": "mapping(uint256 => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(ValidatorInfo)10742_storage)": {
+            "label": "mapping(uint256 => struct spBeam_Validator_Helper.ValidatorInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ValidatorInfo)10742_storage": {
+            "label": "struct spBeam_Validator_Helper.ValidatorInfo",
+            "members": [
+              {
+                "label": "validationID",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "active",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "delegatedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "weight",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "delegationID",
+                "type": "t_uint32",
+                "offset": 8,
+                "slot": "4"
+              },
+              {
+                "label": "weightToValueFactor",
+                "type": "t_uint64",
+                "offset": 12,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "5a8cc91d1e1213e2f136e677ff8c49afd105819b8b8d2956246af8f7eb02e310": {
+      "address": "0x636D8690f87B33721F727fd81fb9Db5049Db6Bfb",
+      "txHash": "0xea34c343c8b5a2f9021865f1cd86b62eacf9b17b61196d078b57ca6c19be626f",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "governance",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:47"
+          },
+          {
+            "label": "pendingGovernance",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:50"
+          },
+          {
+            "label": "totalPooledBEAM",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:53"
+          },
+          {
+            "label": "protocolFeeBasisPoints",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:56"
+          },
+          {
+            "label": "daoFeeBasisPoints",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:59"
+          },
+          {
+            "label": "devFeeBasisPoints",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:62"
+          },
+          {
+            "label": "totalLockedInUnlocks",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:64"
+          },
+          {
+            "label": "accumulatedDaoFees",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:74"
+          },
+          {
+            "label": "accumulatedDevFees",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:77"
+          },
+          {
+            "label": "minStakeAmount",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:80"
+          },
+          {
+            "label": "unlockPeriod",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:83"
+          },
+          {
+            "label": "unlockRequests",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_array(t_struct(UnlockRequest)7388_storage)dyn_storage)",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:93"
+          },
+          {
+            "label": "validatorHelper",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_address",
+            "contract": "spBEAM_V2",
+            "src": "contracts\\ERC4626\\spBEAM_V2.sol:96"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)1140": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)156_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(ERC4626Storage)340_storage": {
+            "label": "struct ERC4626Upgradeable.ERC4626Storage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_contract(IERC20)1140",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_underlyingDecimals",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)7_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PausableStorage)603_storage": {
+            "label": "struct PausableUpgradeable.PausableStorage",
+            "members": [
+              {
+                "label": "_paused",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)667_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          },
+          "t_array(t_struct(UnlockRequest)7388_storage)dyn_storage": {
+            "label": "struct spBEAM_V2.UnlockRequest[]",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_array(t_struct(UnlockRequest)7388_storage)dyn_storage)": {
+            "label": "mapping(address => struct spBEAM_V2.UnlockRequest[])",
+            "numberOfBytes": "32"
+          },
+          "t_struct(UnlockRequest)7388_storage": {
+            "label": "struct spBEAM_V2.UnlockRequest",
+            "members": [
+              {
+                "label": "spBeamAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "beamAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Pausable": [
+            {
+              "contract": "PausableUpgradeable",
+              "label": "_paused",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\PausableUpgradeable.sol:21",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC4626": [
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_asset",
+              "type": "t_contract(IERC20)1140",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\extensions\\ERC4626Upgradeable.sol:56",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_underlyingDecimals",
+              "type": "t_uint8",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\extensions\\ERC4626Upgradeable.sol:57",
+              "offset": 20,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:33",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:35",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:37",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:39",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin\\contracts-upgradeable\\token\\ERC20\\ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "4e8d39a2b1a835c10af5e12eda7e255f7a7238caf20395712ce15b5eaa2f7cc1": {
+      "address": "0x956a11E105c8a3429E1c3f633A2CdD193fc95013",
+      "txHash": "0x28349a935f1eec4fbf39eaeed432af521b989a9eb8bf28ba9c7c08091faf1aed",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "spBEAM",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:101"
+          },
+          {
+            "label": "beamStaking",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBeamStaking)1388",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:104"
+          },
+          {
+            "label": "validators",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint256,t_struct(ValidatorInfo)1427_storage)",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:118"
+          },
+          {
+            "label": "validatorCount",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:121"
+          },
+          {
+            "label": "validatorExists",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_uint256,t_bool)",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:124"
+          },
+          {
+            "label": "activeValidatorIds",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_array(t_uint256)dyn_storage",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:127"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)7_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)132_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBeamStaking)1388": {
+            "label": "contract IBeamStaking",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint256,t_bool)": {
+            "label": "mapping(uint256 => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(ValidatorInfo)1427_storage)": {
+            "label": "mapping(uint256 => struct spBeam_Validator_Helper.ValidatorInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ValidatorInfo)1427_storage": {
+            "label": "struct spBeam_Validator_Helper.ValidatorInfo",
+            "members": [
+              {
+                "label": "validationID",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "active",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "delegatedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "weight",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "delegationID",
+                "type": "t_uint32",
+                "offset": 8,
+                "slot": "4"
+              },
+              {
+                "label": "weightToValueFactor",
+                "type": "t_uint64",
+                "offset": 12,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "8c344e02a421a2261edddd0725866ab58597e6f599e80c3eb7e56bfc710ee85f": {
+      "address": "0x46dB7b4d19BE6AF9574D3b634acB9Fd880719D5a",
+      "txHash": "0xcd95183c6c5cfc14b8fdeb23f43956e9310d251d0b44af3ba81ba4e06179b36c",
+      "layout": {
+        "solcVersion": "0.8.28",
+        "storage": [
+          {
+            "label": "spBEAM",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:101"
+          },
+          {
+            "label": "beamStaking",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IBeamStaking)1388",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:104"
+          },
+          {
+            "label": "validators",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint256,t_struct(ValidatorInfo)1427_storage)",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:118"
+          },
+          {
+            "label": "validatorCount",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:121"
+          },
+          {
+            "label": "validatorExists",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_uint256,t_bool)",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:124"
+          },
+          {
+            "label": "activeValidatorIds",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_array(t_uint256)dyn_storage",
+            "contract": "spBeam_Validator_Helper",
+            "src": "contracts\\ERC4626Validator\\spBEAM_Validator_Helper.sol:127"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)7_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)132_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBeamStaking)1388": {
+            "label": "contract IBeamStaking",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_uint256,t_bool)": {
+            "label": "mapping(uint256 => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(ValidatorInfo)1427_storage)": {
+            "label": "mapping(uint256 => struct spBeam_Validator_Helper.ValidatorInfo)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ValidatorInfo)1427_storage": {
+            "label": "struct spBeam_Validator_Helper.ValidatorInfo",
+            "members": [
+              {
+                "label": "validationID",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "active",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "delegatedAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "weight",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "delegationID",
+                "type": "t_uint32",
+                "offset": 8,
+                "slot": "4"
+              },
+              {
+                "label": "weightToValueFactor",
+                "type": "t_uint64",
+                "offset": 12,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin\\contracts-upgradeable\\utils\\ReentrancyGuardUpgradeable.sol:43",
+              "offset": 0,
+              "slot": "0"
             }
           ],
           "erc7201:openzeppelin.storage.Initializable": [

@@ -1,0 +1,33 @@
+{
+  "network": "beamTestnet",
+  "chainId": 13337,
+  "deploymentDate": "2025-11-06T08:04:00.000Z",
+  "contracts": {
+    "spBeam_Validator_Helper": {
+      "proxy": "0xD0860B697825b80C6Cf21aB0Bb9B02A1Dc672F83",
+      "implementation": "0x30C2Ad81ce324dAe1CbE9B7F485716f984433AF8",
+      "deployer": "0x20080A46C94fA106625e6A7531152490D7E5ee8a"
+    },
+    "spBEAM_V2": {
+      "proxy": "0x4d3F457c9a6Fd430F661283d92b9E7aA8ae638B8"
+    },
+    "beamStaking": {
+      "address": "0xF4B5869AabE19a106C0df25E1537d855b54EEcBD"
+    }
+  },
+  "features": {
+    "multiValidator": true,
+    "batchDelegation": true,
+    "rewardClaiming": true,
+    "rotationStrategy": true,
+    "upgradeable": true
+  },
+  "explorer": "https://subnets-test.avax.network/beam/address/0xD0860B697825b80C6Cf21aB0Bb9B02A1Dc672F83",
+  "nextSteps": [
+    "Add validators using addValidator(address, name)",
+    "Activate validators using setValidatorActive(id, true)",
+    "Delegate BEAM using initiateBatchDelegation(id, amount)",
+    "Complete delegation after Beam confirms",
+    "Claim rewards using claimValidatorRewards(id)"
+  ]
+}

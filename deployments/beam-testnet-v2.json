@@ -1,0 +1,40 @@
+{
+  "network": "beamTestnet",
+  "chainId": 13337,
+  "version": "V2",
+  "deploymentDate": "2025-11-06T07:59:25.705Z",
+  "contracts": {
+    "spBEAM_V2": {
+      "proxy": "0x4d3F457c9a6Fd430F661283d92b9E7aA8ae638B8",
+      "implementation": "0xC54f630370aD9Ad9855bEf2932425888D307Ccad",
+      "deployer": "0x20080A46C94fA106625e6A7531152490D7E5ee8a",
+      "blockNumber": 1724514
+    }
+  },
+  "configuration": {
+    "name": "Sparrow Staked BEAM",
+    "symbol": "spBEAM",
+    "decimals": 18,
+    "daoFeeBasisPoints": 500,
+    "devFeeBasisPoints": 300,
+    "unlockPeriod": 1814400,
+    "unlockPeriodDays": 21,
+    "minStakeAmount": "0.1",
+    "hasExpiry": false
+  },
+  "features": {
+    "erc4626": true,
+    "upgradeable": true,
+    "pausable": true,
+    "noExpiry": true,
+    "validatorHelper": false
+  },
+  "explorer": "https://subnets-test.avax.network/beam/address/0x4d3F457c9a6Fd430F661283d92b9E7aA8ae638B8",
+  "notes": [
+    "V2 deployment with no expiry system",
+    "21-day unlock period (production ready)",
+    "Removed cancelUnlock() and claimExpired() functions",
+    "Users can claim anytime after unlock period",
+    "Optimized with runs=1 for contract size"
+  ]
+}
