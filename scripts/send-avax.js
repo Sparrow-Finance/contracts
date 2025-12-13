@@ -5,7 +5,7 @@ async function main() {
   console.log("💸 Sending AVAX to Contract...\n");
 
   // Contract address to send AVAX to
-  const contractAddress = "0x639573C396C52ED735DA74A3215b736a618EaDC2";
+  const contractAddress = "0xE68f6732Ad4b2fD541926fEe43E0F353611Fa09d";
 
   // Amount to send (in AVAX)
   const amountInAVAX = "0.9"; // Change this amount as needed
