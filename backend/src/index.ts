@@ -22,7 +22,7 @@ const C_CHAIN_ADDRESS = process.env.C_CHAIN_ADDRESS!;
 const P_CHAIN_ADDRESS = process.env.P_CHAIN_ADDRESS!;
 const SPAVAX_CONTRACT_ADDRESS = process.env.SPAVAX_CONTRACT_ADDRESS || "";
 const VALIDATOR_NODE_ID = process.env.VALIDATOR_NODE_ID!;
-const FUJI_RPC_URL = process.env.FUJI_RPC_URL!;
+const FUJI_RPC_URL = "https://api.avax-test.network/ext/bc/C/rpc";
 
 // Contract ABI
 const SPAVAX_ABI = [

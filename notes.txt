@@ -1,0 +1,20 @@
+---------------------------root
+npx hardhat run scripts/deploy-proxy.js --network fuji
+
+npx hardhat run scripts/stake.js --network fuji
+
+
+
+----------------backend
+
+npm run dev stats
+
+npm run dev balances
+
+npm run dev withdraw 1
+
+npm run dev bridge-c-to-p 1
+
+npm run dev delegations
+
+npm run dev delegate 1 2
