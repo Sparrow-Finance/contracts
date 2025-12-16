@@ -30,6 +30,11 @@ interface IWithdrawalQueueNFT {
             uint256 expiryTime
         );
     
+    function getRequest(uint256 tokenId) 
+        external 
+        view 
+        returns (WithdrawalRequest memory);
+    
     function isClaimable(uint256 tokenId) external view returns (bool);
     
     function isExpired(uint256 tokenId) external view returns (bool);
