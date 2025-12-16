@@ -540,14 +540,14 @@ contract spAVAX is
         require(request.spAvaxAmount > 0, "Request already claimed");
         require(block.timestamp < request.expiryTime, "Request expired, use claimExpired");
         
-        // Clear request and return spAVAX
+        // Clear request
         delete unlockRequests[msg.sender][index];
         totalLockedInUnlocks -= request.avaxAmount;
         
-        uint256 currentShares = _convertToShares(request.avaxAmount, Math.Rounding.Floor);
-        _transfer(address(this), msg.sender, currentShares);
+        // Return original spAVAX amount (no rate change - user gets back what they locked)
+        _transfer(address(this), msg.sender, request.spAvaxAmount);
         
-        emit UnlockCanceled(msg.sender, currentShares);
+        emit UnlockCanceled(msg.sender, request.spAvaxAmount);
     }
     
     /// @notice Legacy claim expired
@@ -558,14 +558,14 @@ contract spAVAX is
         require(request.spAvaxAmount > 0, "Request already claimed");
         require(block.timestamp >= request.expiryTime, "Not expired yet");
         
-        // Clear request and return spAVAX at current rate
+        // Clear request
         delete unlockRequests[msg.sender][index];
         totalLockedInUnlocks -= request.avaxAmount;
         
-        uint256 currentShares = _convertToShares(request.avaxAmount, Math.Rounding.Floor);
-        _transfer(address(this), msg.sender, currentShares);
+        // Return original spAVAX amount (no rate change - user gets back what they locked)
+        _transfer(address(this), msg.sender, request.spAvaxAmount);
         
-        emit ExpiredClaimed(msg.sender, currentShares);
+        emit ExpiredClaimed(msg.sender, request.spAvaxAmount);
     }
     
     /// @notice Get unlock request count for user
