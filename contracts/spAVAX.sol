@@ -29,7 +29,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
  * - Unlock period 7-30 days (hardcoded limits)
  * - Upgradeable via DAO vote with 2-day timelock
  */
-contract spAVAX_V1 is
+contract spAVAX is
     Initializable,
     ERC20Upgradeable,
     ReentrancyGuardUpgradeable,

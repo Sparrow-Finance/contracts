@@ -56,7 +56,7 @@ async function main() {
   console.log("📦 Deploying spAVAX Contract...");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
-  const SpAVAX = await hre.ethers.getContractFactory("spAVAX_V1");
+  const SpAVAX = await hre.ethers.getContractFactory("spAVAX");
   
   console.log("⏳ Deploying proxy...");
   const spavax = await upgrades.deployProxy(SpAVAX, [], {

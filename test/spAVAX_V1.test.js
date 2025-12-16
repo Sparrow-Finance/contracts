@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
-describe("spAVAX_V1", function () {
+describe("spAVAX", function () {
   let spavax;
   let owner;
   let user1;
@@ -11,7 +11,7 @@ describe("spAVAX_V1", function () {
   beforeEach(async function () {
     [owner, user1, user2] = await ethers.getSigners();
 
-    const SpAVAX = await ethers.getContractFactory("spAVAX_V1");
+    const SpAVAX = await ethers.getContractFactory("spAVAX");
     spavax = await upgrades.deployProxy(SpAVAX, [], {
       initializer: "initialize",
       kind: "uups"
