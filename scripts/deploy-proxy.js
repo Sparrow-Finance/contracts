@@ -3,8 +3,8 @@ const { upgrades } = require("hardhat");
 require("dotenv").config();
 
 async function main() {
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("🚀 SPARROW FINANCE - spAVAX DEPLOYMENT (UUPS)");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("🚀 SPARROW FINANCE - spAVAX V3 DEPLOYMENT (ERC4626 + NFT)");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   // ============================================
@@ -12,11 +12,9 @@ async function main() {
   // ============================================
   console.log("📋 Pre-flight Checks...\n");
 
-  // Get deployer account
   const [deployer] = await hre.ethers.getSigners();
   console.log("👤 Deployer Address:", deployer.address);
   
-  // Check if deployer matches expected address
   const expectedAddress = process.env.C_CHAIN_ADDRESS;
   if (deployer.address.toLowerCase() !== expectedAddress.toLowerCase()) {
     console.log("⚠️  WARNING: Deployer address doesn't match C_CHAIN_ADDRESS in .env");
@@ -26,7 +24,6 @@ async function main() {
   }
   console.log("✅ Deployer address verified\n");
 
-  // Check balance
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   const balanceInAvax = hre.ethers.formatEther(balance);
   console.log("💰 Balance:", balanceInAvax, "AVAX");
@@ -39,7 +36,6 @@ async function main() {
   }
   console.log("✅ Sufficient balance for deployment\n");
 
-  // Network info
   console.log("🌐 Network:", hre.network.name);
   const chainId = await hre.ethers.provider.getNetwork().then(n => n.chainId);
   console.log("🔗 Chain ID:", chainId);
@@ -50,7 +46,31 @@ async function main() {
   console.log("✅ Network verified\n");
 
   // ============================================
-  // STEP 2: DEPLOY CONTRACT
+  // STEP 2: DEPLOY NFT CONTRACT
+  // ============================================
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("📦 Deploying WithdrawalQueueNFT Contract...");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+
+  const WithdrawalQueueNFT = await hre.ethers.getContractFactory("WithdrawalQueueNFT");
+  
+  console.log("⏳ Deploying NFT contract...");
+  const nft = await WithdrawalQueueNFT.deploy(deployer.address);
+  
+  console.log("⏳ Waiting for deployment transaction...");
+  await nft.waitForDeployment();
+  
+  const nftAddress = await nft.getAddress();
+  console.log("✅ NFT Contract deployed:", nftAddress, "\n");
+
+  // Wait for confirmations
+  const confirmations = parseInt(process.env.CONFIRMATIONS || "3");
+  console.log(`⏳ Waiting for ${confirmations} confirmations...`);
+  await new Promise(resolve => setTimeout(resolve, confirmations * 2000));
+  console.log("✅ Confirmations complete\n");
+
+  // ============================================
+  // STEP 3: DEPLOY SPAVAX CONTRACT (UUPS PROXY)
   // ============================================
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("📦 Deploying spAVAX Contract...");
@@ -58,7 +78,7 @@ async function main() {
 
   const SpAVAX = await hre.ethers.getContractFactory("spAVAX");
   
-  console.log("⏳ Deploying proxy...");
+  console.log("⏳ Deploying UUPS proxy...");
   const spavax = await upgrades.deployProxy(SpAVAX, [], {
     initializer: "initialize",
     kind: "uups"
@@ -70,33 +90,60 @@ async function main() {
   const proxyAddress = await spavax.getAddress();
   console.log("✅ Proxy deployed:", proxyAddress, "\n");
 
-  // Get implementation address
   const implementationAddress = await upgrades.erc1967.getImplementationAddress(proxyAddress);
   console.log("✅ Implementation deployed:", implementationAddress, "\n");
 
-  // Wait for confirmations
-  const confirmations = parseInt(process.env.CONFIRMATIONS || "3");
   console.log(`⏳ Waiting for ${confirmations} confirmations...`);
-  await new Promise(resolve => setTimeout(resolve, confirmations * 2000)); // ~2 sec per block
+  await new Promise(resolve => setTimeout(resolve, confirmations * 2000));
   console.log("✅ Confirmations complete\n");
 
   // ============================================
-  // STEP 3: VERIFY DEPLOYMENT
+  // STEP 4: LINK CONTRACTS
+  // ============================================
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("🔗 Linking Contracts...");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+
+  console.log("⏳ Setting NFT contract in spAVAX...");
+  const tx1 = await spavax.setWithdrawalNFT(nftAddress);
+  await tx1.wait();
+  console.log("✅ NFT contract set in spAVAX\n");
+
+  console.log("⏳ Setting vault address in NFT...");
+  const tx2 = await nft.setVault(proxyAddress);
+  await tx2.wait();
+  console.log("✅ Vault address set in NFT\n");
+
+  // Verify linking
+  const nftFromSpavax = await spavax.withdrawalQueueNFT();
+  const vaultFromNft = await nft.vault();
+  
+  if (nftFromSpavax.toLowerCase() !== nftAddress.toLowerCase()) {
+    throw new Error("NFT linking verification failed in spAVAX");
+  }
+  if (vaultFromNft.toLowerCase() !== proxyAddress.toLowerCase()) {
+    throw new Error("Vault linking verification failed in NFT");
+  }
+  console.log("✅ Contract linking verified\n");
+
+  // ============================================
+  // STEP 5: VERIFY DEPLOYMENT
   // ============================================
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("🔍 Verifying Deployment...");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
-  // Basic contract info
   const name = await spavax.name();
   const symbol = await spavax.symbol();
   const decimals = await spavax.decimals();
   const governance = await spavax.governance();
+  const asset = await spavax.asset();
 
   console.log("📊 Token Information:");
   console.log("   Name:", name);
   console.log("   Symbol:", symbol);
   console.log("   Decimals:", decimals);
+  console.log("   Asset:", asset, "(native AVAX)");
   console.log("   Governance:", governance, "\n");
 
   if (governance.toLowerCase() !== deployer.address.toLowerCase()) {
@@ -104,7 +151,6 @@ async function main() {
     throw new Error("Governance should be deployer address");
   }
 
-  // Get contract stats
   const stats = await spavax.getStats();
   const unlockPeriod = await spavax.unlockPeriod();
   const claimWindow = await spavax.claimWindow();
@@ -114,15 +160,15 @@ async function main() {
   console.log("   Total Pooled AVAX:", hre.ethers.formatEther(stats[0]), "AVAX");
   console.log("   Total Supply:", hre.ethers.formatEther(stats[1]), "spAVAX");
   console.log("   Exchange Rate:", hre.ethers.formatEther(stats[2]));
-  console.log("   Liquid Balance:", hre.ethers.formatEther(stats[3]), "AVAX");
-  console.log("   DAO Fee:", stats[6].toString(), "bps (", Number(stats[6]) / 100, "%)");
-  console.log("   Dev Fee:", stats[7].toString(), "bps (", Number(stats[7]) / 100, "%)");
-  console.log("   Unlock Period:", unlockPeriod.toString(), "seconds (", Number(unlockPeriod) / 86400, "days)");
-  console.log("   Claim Window:", claimWindow.toString(), "seconds (", Number(claimWindow) / 86400, "days)");
+  console.log("   Total Locked:", hre.ethers.formatEther(stats[3]), "AVAX");
+  console.log("   DAO Fees:", hre.ethers.formatEther(stats[4]), "AVAX");
+  console.log("   Dev Fees:", hre.ethers.formatEther(stats[5]), "AVAX");
+  console.log("   Unlock Period:", unlockPeriod.toString(), "seconds");
+  console.log("   Claim Window:", claimWindow.toString(), "seconds");
   console.log("   Min Stake:", hre.ethers.formatEther(minStakeAmount), "AVAX\n");
 
   // ============================================
-  // STEP 4: VERIFY ON SNOWTRACE
+  // STEP 6: VERIFY ON SNOWTRACE
   // ============================================
   if (process.env.VERIFY_CONTRACT === "true" && 
       (hre.network.name === "fuji" || hre.network.name === "mainnet")) {
@@ -135,7 +181,23 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 30000));
     
     try {
-      console.log("⏳ Verifying implementation contract...");
+      console.log("⏳ Verifying NFT contract...");
+      await hre.run("verify:verify", {
+        address: nftAddress,
+        constructorArguments: [deployer.address],
+      });
+      console.log("✅ NFT contract verified on Snowtrace!\n");
+    } catch (error) {
+      if (error.message.includes("Already Verified")) {
+        console.log("✅ NFT contract already verified!\n");
+      } else {
+        console.log("❌ NFT verification failed:", error.message);
+        console.log(`   Manual: npx hardhat verify --network ${hre.network.name} ${nftAddress} ${deployer.address}\n`);
+      }
+    }
+    
+    try {
+      console.log("⏳ Verifying spAVAX implementation...");
       await hre.run("verify:verify", {
         address: implementationAddress,
         constructorArguments: [],
@@ -146,14 +208,13 @@ async function main() {
         console.log("✅ Implementation already verified!\n");
       } else {
         console.log("❌ Verification failed:", error.message);
-        console.log("   You can verify manually with:");
-        console.log(`   npx hardhat verify --network ${hre.network.name} ${implementationAddress}\n`);
+        console.log(`   Manual: npx hardhat verify --network ${hre.network.name} ${implementationAddress}\n`);
       }
     }
   }
 
   // ============================================
-  // STEP 5: DEPLOYMENT SUMMARY
+  // STEP 7: DEPLOYMENT SUMMARY
   // ============================================
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("✅ DEPLOYMENT SUCCESSFUL!");
@@ -162,6 +223,7 @@ async function main() {
   const deploymentInfo = {
     network: hre.network.name,
     chainId: Number(chainId),
+    nftAddress: nftAddress,
     proxyAddress: proxyAddress,
     implementationAddress: implementationAddress,
     deployer: deployer.address,
@@ -171,8 +233,6 @@ async function main() {
     tokenName: name,
     tokenSymbol: symbol,
     configuration: {
-      daoFeeBps: stats[6].toString(),
-      devFeeBps: stats[7].toString(),
       unlockPeriodSeconds: unlockPeriod.toString(),
       claimWindowSeconds: claimWindow.toString(),
       minStakeAmount: hre.ethers.formatEther(minStakeAmount)
@@ -184,14 +244,16 @@ async function main() {
   console.log("");
 
   // ============================================
-  // STEP 6: NEXT STEPS
+  // STEP 8: NEXT STEPS
   // ============================================
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("📝 IMPORTANT - SAVE THESE ADDRESSES:");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
   
-  console.log("🔷 PROXY ADDRESS (use this for all interactions):");
+  console.log("🔷 SPAVAX PROXY ADDRESS (use this for staking):");
   console.log("   " + proxyAddress);
+  console.log("\n🔶 NFT CONTRACT ADDRESS (for withdrawal NFTs):");
+  console.log("   " + nftAddress);
   console.log("\n🔸 IMPLEMENTATION ADDRESS (for reference only):");
   console.log("   " + implementationAddress);
   console.log("");
@@ -202,38 +264,39 @@ async function main() {
   
   console.log("1️⃣  Update .env file:");
   console.log("   SPAVAX_PROXY_ADDRESS=" + proxyAddress);
+  console.log("   SPAVAX_NFT_ADDRESS=" + nftAddress);
   console.log("   SPAVAX_IMPLEMENTATION_ADDRESS=" + implementationAddress);
   console.log("");
   
-  console.log("2️⃣  Update frontend configuration:");
-  console.log("   - Update contract address in UI");
-  console.log("   - Update ABI if needed");
+  console.log("2️⃣  Test the deployment:");
+  console.log("   npx hardhat test test/spAVAX.test.js --network " + hre.network.name);
   console.log("");
   
-  console.log("3️⃣  Test the deployment:");
-  console.log("   npx hardhat run scripts/testStake.js --network " + hre.network.name);
-  console.log("");
-  
-  console.log("4️⃣  View on Snowtrace:");
+  console.log("3️⃣  View on Snowtrace:");
   const explorerUrl = hre.network.name === "fuji"
     ? `https://testnet.snowtrace.io/address/${proxyAddress}`
     : `https://snowtrace.io/address/${proxyAddress}`;
-  console.log("   " + explorerUrl);
+  console.log("   spAVAX: " + explorerUrl);
+  const nftExplorerUrl = hre.network.name === "fuji"
+    ? `https://testnet.snowtrace.io/address/${nftAddress}`
+    : `https://snowtrace.io/address/${nftAddress}`;
+  console.log("   NFT: " + nftExplorerUrl);
   console.log("");
   
-  console.log("5️⃣  Add validator delegation:");
-  console.log("   - Use withdraw() to send AVAX to validator");
-  console.log("   - Delegate to: " + process.env.VALIDATOR_NODE_ID);
+  console.log("4️⃣  New Features in V3:");
+  console.log("   ✅ ERC-4626 compliant (depositAVAX/withdraw)");
+  console.log("   ✅ NFT-based withdrawals (tradeable positions)");
+  console.log("   ✅ Backward compatible with V1 (stake/requestUnlock)");
   console.log("");
 
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("⚠️  IMPORTANT NOTES:");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
   
-  console.log("- Contract will appear in Snowtrace after first transaction");
-  console.log("- Indexing may take 5-10 minutes");
-  console.log("- Current unlock period is 60 seconds (FOR TESTING ONLY)");
-  console.log("- Change to 15 days for production using setUnlockPeriod()");
+  console.log("- Unlock period is 60 seconds (FOR TESTING ONLY)");
+  console.log("- Change to 15 days for production: setUnlockPeriod(1296000)");
+  console.log("- Users can use EITHER legacy or ERC-4626 flow");
+  console.log("- Withdrawal NFTs are tradeable on OpenSea/Kalao");
   console.log("");
   
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
