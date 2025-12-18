@@ -2,15 +2,16 @@ const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
-describe("spAVAX V3 - Full Test Suite", function () {
+describe("spAVAX - COMPLETE Test Suite", function () {
   let spavax;
   let nft;
   let owner;
   let user1;
   let user2;
+  let user3;
 
   beforeEach(async function () {
-    [owner, user1, user2] = await ethers.getSigners();
+    [owner, user1, user2, user3] = await ethers.getSigners();
 
     // Deploy NFT contract first
     const WithdrawalQueueNFT = await ethers.getContractFactory("WithdrawalQueueNFT");
@@ -19,20 +20,19 @@ describe("spAVAX V3 - Full Test Suite", function () {
 
     // Deploy spAVAX contract
     const SpAVAX = await ethers.getContractFactory("spAVAX");
-    spavax = await upgrades.deployProxy(SpAVAX, [], {
+    spavax = await upgrades.deployProxy(SpAVAX, [await nft.getAddress()], {
       initializer: "initialize",
       kind: "uups"
     });
     await spavax.waitForDeployment();
 
     // Link contracts
-    await spavax.setWithdrawalNFT(await nft.getAddress());
     await nft.setVault(await spavax.getAddress());
   });
 
   describe("Deployment", function () {
-    it("Should set correct governance", async function () {
-      expect(await spavax.governance()).to.equal(owner.address);
+    it("Should set correct owner", async function () {
+      expect(await spavax.owner()).to.equal(owner.address);
     });
 
     it("Should have correct name and symbol", async function () {
@@ -59,13 +59,17 @@ describe("spAVAX V3 - Full Test Suite", function () {
     it("Should have correct ERC-4626 asset (address(0) for native AVAX)", async function () {
       expect(await spavax.asset()).to.equal(ethers.ZeroAddress);
     });
+
+    it("Should have 18 decimals", async function () {
+      expect(await spavax.decimals()).to.equal(18);
+    });
   });
 
   describe("Legacy Staking (stake function)", function () {
     it("Should reject stake below minimum", async function () {
       await expect(
         spavax.connect(user1).stake(0, { value: ethers.parseEther("0.05") })
-      ).to.be.revertedWith("Below minimum stake");
+      ).to.be.revertedWithCustomError(spavax, "BelowMinimumStake");
     });
 
     it("Should allow stake and mint spAVAX", async function () {
@@ -84,7 +88,7 @@ describe("spAVAX V3 - Full Test Suite", function () {
       
       await expect(
         spavax.connect(user2).stake(ethers.parseEther("100"), { value: ethers.parseEther("1") })
-      ).to.be.revertedWith("Slippage too high");
+      ).to.be.revertedWithCustomError(spavax, "SlippageTooHigh");
     });
 
     it("Should calculate correct shares after rewards", async function () {
@@ -92,10 +96,12 @@ describe("spAVAX V3 - Full Test Suite", function () {
       await spavax.addRewards({ value: ethers.parseEther("1") });
       
       const stakeAmount = ethers.parseEther("10");
-      const expectedShares = await spavax.previewStake(stakeAmount);
+      // Use preview to get expected shares based on current rate
+      const expectedShares = await spavax.previewDeposit(stakeAmount);
       
       await spavax.connect(user2).stake(0, { value: stakeAmount });
       
+      // Should match preview exactly
       expect(await spavax.balanceOf(user2.address)).to.equal(expectedShares);
     });
 
@@ -108,12 +114,12 @@ describe("spAVAX V3 - Full Test Suite", function () {
     });
   });
 
-  describe("ERC-4626 Deposit (depositAVAX function)", function () {
+  describe("ERC-4626: deposit()", function () {
     it("Should deposit AVAX and mint spAVAX", async function () {
       const depositAmount = ethers.parseEther("1");
       
       await expect(
-        spavax.connect(user1).depositAVAX(user1.address, { value: depositAmount })
+        spavax.connect(user1).deposit(user1.address, { value: depositAmount })
       ).to.emit(spavax, "Staked")
         .withArgs(user1.address, depositAmount, depositAmount);
 
@@ -123,19 +129,66 @@ describe("spAVAX V3 - Full Test Suite", function () {
 
     it("Should reject deposit below minimum", async function () {
       await expect(
-        spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("0.05") })
-      ).to.be.revertedWith("Below minimum stake");
+        spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("0.05") })
+      ).to.be.revertedWithCustomError(spavax, "BelowMinimumStake");
     });
 
     it("Should calculate correct shares after rewards", async function () {
-      await spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
       await spavax.addRewards({ value: ethers.parseEther("1") });
       
+      // Use preview to get expected shares
       const expectedShares = await spavax.previewDeposit(ethers.parseEther("10"));
       
-      await spavax.connect(user2).depositAVAX(user2.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user2).deposit(user2.address, { value: ethers.parseEther("10") });
       
+      // Should match preview exactly
       expect(await spavax.balanceOf(user2.address)).to.equal(expectedShares);
+    });
+
+    it("Should allow depositing to different receiver", async function () {
+      await spavax.connect(user1).deposit(user2.address, { value: ethers.parseEther("1") });
+      expect(await spavax.balanceOf(user2.address)).to.equal(ethers.parseEther("1"));
+      expect(await spavax.balanceOf(user1.address)).to.equal(0);
+    });
+  });
+
+  describe("ERC-4626: mint()", function () {
+    it("Should mint exact shares", async function () {
+      const shares = ethers.parseEther("10");
+      const assets = await spavax.previewMint(shares);
+      
+      await spavax.connect(user1).mint(shares, user1.address, { value: assets });
+      
+      expect(await spavax.balanceOf(user1.address)).to.equal(shares);
+    });
+
+    it("Should reject if msg.value != required assets", async function () {
+      const shares = ethers.parseEther("10");
+      const assets = await spavax.previewMint(shares);
+      
+      await expect(
+        spavax.connect(user1).mint(shares, user1.address, { value: assets + 1n })
+      ).to.be.revertedWithCustomError(spavax, "InvalidAmount");
+    });
+
+    it("Should reject below minimum", async function () {
+      await expect(
+        spavax.connect(user1).mint(ethers.parseEther("0.05"), user1.address, { value: ethers.parseEther("0.05") })
+      ).to.be.revertedWithCustomError(spavax, "BelowMinimumStake");
+    });
+
+    it("Should work after rate changes", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.addRewards({ value: ethers.parseEther("1") });
+      
+      const shares = ethers.parseEther("5");
+      const assets = await spavax.previewMint(shares);
+      
+      // Send exact amount required
+      await spavax.connect(user2).mint(shares, user2.address, { value: assets });
+      
+      expect(await spavax.balanceOf(user2.address)).to.equal(shares);
     });
   });
 
@@ -174,7 +227,7 @@ describe("spAVAX V3 - Full Test Suite", function () {
     it("Should enforce slippage protection", async function () {
       await expect(
         spavax.connect(user1).requestUnlock(ethers.parseEther("5"), ethers.parseEther("100"))
-      ).to.be.revertedWith("Slippage too high");
+      ).to.be.revertedWithCustomError(spavax, "SlippageTooHigh");
     });
 
     it("Should lock exchange rate at request time", async function () {
@@ -199,13 +252,13 @@ describe("spAVAX V3 - Full Test Suite", function () {
       
       await expect(
         spavax.connect(user1).requestUnlock(ethers.parseEther("0.1"), 0)
-      ).to.be.revertedWith("Too many pending requests");
+      ).to.be.revertedWithCustomError(spavax, "TooManyRequests");
     });
   });
 
-  describe("ERC-4626 Withdraw (withdraw function → NFT)", function () {
+  describe("ERC-4626: withdraw() → NFT", function () {
     beforeEach(async function () {
-      await spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
     });
 
     it("Should create NFT withdrawal request", async function () {
@@ -215,7 +268,6 @@ describe("spAVAX V3 - Full Test Suite", function () {
         spavax.connect(user1).withdraw(withdrawAmount, user1.address, user1.address)
       ).to.emit(spavax, "Withdraw");
 
-      // User should have NFT
       expect(await nft.balanceOf(user1.address)).to.equal(1);
     });
 
@@ -244,12 +296,162 @@ describe("spAVAX V3 - Full Test Suite", function () {
       const request = await nft.getRequest(1);
       const lockedAvax = request.avaxAmount;
       
-      // Add rewards (changes rate)
       await spavax.addRewards({ value: ethers.parseEther("10") });
       
-      // NFT should still have locked rate
       const requestAfter = await nft.getRequest(1);
       expect(requestAfter.avaxAmount).to.equal(lockedAvax);
+    });
+
+    it("Should support allowance for third-party withdraw", async function () {
+      await spavax.connect(user1).approve(user2.address, ethers.parseEther("5"));
+      
+      await spavax.connect(user2).withdraw(
+        ethers.parseEther("5"),
+        user2.address,
+        user1.address
+      );
+      
+      expect(await nft.balanceOf(user2.address)).to.equal(1);
+      expect(await spavax.balanceOf(user1.address)).to.be.lt(ethers.parseEther("10"));
+    });
+  });
+
+  describe("ERC-4626: redeem() → NFT", function () {
+    beforeEach(async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+    });
+
+    it("Should create NFT withdrawal request", async function () {
+      const shares = ethers.parseEther("5");
+      
+      await spavax.connect(user1).redeem(shares, user1.address, user1.address);
+      
+      expect(await nft.balanceOf(user1.address)).to.equal(1);
+    });
+
+    it("Should burn exact shares", async function () {
+      const shares = ethers.parseEther("5");
+      const balanceBefore = await spavax.balanceOf(user1.address);
+      
+      await spavax.connect(user1).redeem(shares, user1.address, user1.address);
+      
+      expect(await spavax.balanceOf(user1.address)).to.equal(balanceBefore - shares);
+    });
+
+    it("Should lock AVAX in totalLockedInUnlocks", async function () {
+      const shares = ethers.parseEther("5");
+      const expectedAvax = await spavax.previewRedeem(shares);
+      
+      await spavax.connect(user1).redeem(shares, user1.address, user1.address);
+      
+      expect(await spavax.totalLockedInUnlocks()).to.equal(expectedAvax);
+    });
+
+    it("Should support allowance for third-party redeem", async function () {
+      await spavax.connect(user1).approve(user2.address, ethers.parseEther("5"));
+      
+      await spavax.connect(user2).redeem(
+        ethers.parseEther("5"),
+        user2.address,
+        user1.address
+      );
+      
+      expect(await nft.balanceOf(user2.address)).to.equal(1);
+    });
+  });
+
+  describe("ERC-4626: Preview Functions", function () {
+    it("Should preview deposit correctly at 1:1 rate", async function () {
+      const assets = ethers.parseEther("10");
+      expect(await spavax.previewDeposit(assets)).to.equal(assets);
+    });
+
+    it("Should preview deposit after rate change", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("100") });
+      await spavax.addRewards({ value: ethers.parseEther("10") });
+      
+      const assets = ethers.parseEther("10");
+      const shares = await spavax.previewDeposit(assets);
+      
+      expect(shares).to.be.lt(assets);
+    });
+
+    it("Should preview mint correctly", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("100") });
+      await spavax.addRewards({ value: ethers.parseEther("10") });
+      
+      const shares = ethers.parseEther("10");
+      const assets = await spavax.previewMint(shares);
+      
+      expect(assets).to.be.gt(shares);
+    });
+
+    it("Should preview withdraw correctly", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("100") });
+      
+      const assets = ethers.parseEther("10");
+      const shares = await spavax.previewWithdraw(assets);
+      
+      expect(shares).to.equal(assets);
+    });
+
+    it("Should preview redeem correctly", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("100") });
+      await spavax.addRewards({ value: ethers.parseEther("10") });
+      
+      const shares = ethers.parseEther("10");
+      const assets = await spavax.previewRedeem(shares);
+      
+      expect(assets).to.be.gt(shares);
+    });
+  });
+
+  describe("ERC-4626: Max Functions", function () {
+    it("Should return unlimited maxDeposit", async function () {
+      expect(await spavax.maxDeposit(user1.address)).to.equal(ethers.MaxUint256);
+    });
+
+    it("Should return unlimited maxMint", async function () {
+      expect(await spavax.maxMint(user1.address)).to.equal(ethers.MaxUint256);
+    });
+
+    it("Should return user balance for maxWithdraw", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      
+      const maxWithdraw = await spavax.maxWithdraw(user1.address);
+      expect(maxWithdraw).to.equal(ethers.parseEther("10"));
+    });
+
+    it("Should return user shares for maxRedeem", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      
+      expect(await spavax.maxRedeem(user1.address)).to.equal(ethers.parseEther("10"));
+    });
+
+    it("Should update maxWithdraw after rate change", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.addRewards({ value: ethers.parseEther("1") });
+      
+      const maxWithdraw = await spavax.maxWithdraw(user1.address);
+      expect(maxWithdraw).to.be.gt(ethers.parseEther("10"));
+    });
+  });
+
+  describe("ERC-4626: totalAssets()", function () {
+    it("Should return zero initially", async function () {
+      expect(await spavax.totalAssets()).to.equal(0);
+    });
+
+    it("Should return totalPooledAVAX minus fees and locked", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      expect(await spavax.totalAssets()).to.equal(ethers.parseEther("10"));
+    });
+
+    it("Should increase with rewards", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.addRewards({ value: ethers.parseEther("1") });
+      
+      expect(await spavax.totalAssets()).to.equal(ethers.parseEther("10.92"));
     });
   });
 
@@ -262,7 +464,7 @@ describe("spAVAX V3 - Full Test Suite", function () {
     it("Should not allow claim before unlock period", async function () {
       await expect(
         spavax.connect(user1).claimUnlock(0)
-      ).to.be.revertedWith("Unlock period not finished");
+      ).to.be.revertedWithCustomError(spavax, "UnlockPeriodNotFinished");
     });
 
     it("Should allow claim after unlock period", async function () {
@@ -298,22 +500,7 @@ describe("spAVAX V3 - Full Test Suite", function () {
       
       await expect(
         spavax.connect(user1).claimUnlock(0)
-      ).to.be.revertedWith("Claim window expired");
-    });
-
-    it("Should check liquidity accounts for fees", async function () {
-      await spavax.addRewards({ value: ethers.parseEther("2") });
-      
-      const daoFees = await spavax.accumulatedDaoFees();
-      const devFees = await spavax.accumulatedDevFees();
-      expect(daoFees).to.be.gt(0);
-      expect(devFees).to.be.gt(0);
-      
-      await time.increase(61);
-      await spavax.connect(user1).claimUnlock(0);
-      
-      expect(await spavax.accumulatedDaoFees()).to.equal(daoFees);
-      expect(await spavax.accumulatedDevFees()).to.equal(devFees);
+      ).to.be.revertedWithCustomError(spavax, "ClaimWindowExpired");
     });
 
     it("Should use locked exchange rate", async function () {
@@ -337,14 +524,14 @@ describe("spAVAX V3 - Full Test Suite", function () {
 
   describe("NFT Withdrawal Claim (claimWithdrawalNFT)", function () {
     beforeEach(async function () {
-      await spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
       await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
     });
 
     it("Should not allow claim before unlock period", async function () {
       await expect(
         spavax.connect(user1).claimWithdrawalNFT(1)
-      ).to.be.revertedWith("Unlock period not finished");
+      ).to.be.revertedWithCustomError(spavax, "UnlockPeriodNotFinished");
     });
 
     it("Should claim AVAX after unlock period", async function () {
@@ -383,19 +570,6 @@ describe("spAVAX V3 - Full Test Suite", function () {
       expect(await nft.balanceOf(user1.address)).to.equal(0);
     });
 
-    it("Should check liquidity includes fees", async function () {
-      await spavax.addRewards({ value: ethers.parseEther("2") });
-      
-      const daoFees = await spavax.accumulatedDaoFees();
-      const devFees = await spavax.accumulatedDevFees();
-      
-      await time.increase(61);
-      await spavax.connect(user1).claimWithdrawalNFT(1);
-      
-      expect(await spavax.accumulatedDaoFees()).to.equal(daoFees);
-      expect(await spavax.accumulatedDevFees()).to.equal(devFees);
-    });
-
     it("Should use locked exchange rate", async function () {
       const request = await nft.getRequest(1);
       const lockedAvax = request.avaxAmount;
@@ -427,13 +601,6 @@ describe("spAVAX V3 - Full Test Suite", function () {
       await spavax.connect(user1).cancelUnlock(0);
       
       expect(await spavax.balanceOf(user1.address)).to.be.gt(balanceBefore);
-      
-      // After delete, array length stays 1 but element is cleared
-      expect(await spavax.getUnlockRequestCount(user1.address)).to.equal(1);
-      
-      // Verify request is actually cleared (spAvaxAmount = 0)
-      const request = await spavax.getUnlockRequest(user1.address, 0);
-      expect(request[0]).to.equal(0);
     });
 
     it("Should decrease totalLockedInUnlocks", async function () {
@@ -452,97 +619,93 @@ describe("spAVAX V3 - Full Test Suite", function () {
       expect(totalAfter).to.equal(totalBefore);
     });
 
-    it("Should not allow canceling after expiry", async function () {
-      await time.increase(7 * 24 * 60 * 60 + 61);
+    it("Should not allow canceling after unlock time", async function () {
+      await time.increase(61);
       
       await expect(
         spavax.connect(user1).cancelUnlock(0)
-      ).to.be.revertedWith("Request expired, use claimExpired");
+      ).to.be.revertedWithCustomError(spavax, "AlreadyUnlocked");
     });
 
     it("Should return original spAVAX amount on cancel", async function () {
       const request = await spavax.getUnlockRequest(user1.address, 0);
       const lockedSpAvax = request[0];
       
-      // Change exchange rate
       await spavax.addRewards({ value: ethers.parseEther("10") });
       
       const balanceBefore = await spavax.balanceOf(user1.address);
       await spavax.connect(user1).cancelUnlock(0);
       const balanceAfter = await spavax.balanceOf(user1.address);
       
-      // Should get back EXACTLY the locked spAVAX amount
       expect(balanceAfter - balanceBefore).to.equal(lockedSpAvax);
     });
   });
 
   describe("NFT Withdrawal Cancel (cancelWithdrawalNFT)", function () {
-  beforeEach(async function () {
-    await spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("10") });
-    await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
-  });
+    beforeEach(async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
+    });
 
-  it("Should cancel withdrawal and return spAVAX", async function () {
-    const balanceBefore = await spavax.balanceOf(user1.address);
-    
-    await spavax.connect(user1).cancelWithdrawalNFT(1);
-    
-    const balanceAfter = await spavax.balanceOf(user1.address);
-    expect(balanceAfter).to.be.gt(balanceBefore);
-  });
+    it("Should cancel withdrawal and return spAVAX", async function () {
+      const balanceBefore = await spavax.balanceOf(user1.address);
+      
+      await spavax.connect(user1).cancelWithdrawalNFT(1);
+      
+      const balanceAfter = await spavax.balanceOf(user1.address);
+      expect(balanceAfter).to.be.gt(balanceBefore);
+    });
 
-  it("Should decrease totalLockedInUnlocks", async function () {
-    expect(await spavax.totalLockedInUnlocks()).to.equal(ethers.parseEther("5"));
-    await spavax.connect(user1).cancelWithdrawalNFT(1);
-    expect(await spavax.totalLockedInUnlocks()).to.equal(0);
-  });
+    it("Should decrease totalLockedInUnlocks", async function () {
+      expect(await spavax.totalLockedInUnlocks()).to.equal(ethers.parseEther("5"));
+      await spavax.connect(user1).cancelWithdrawalNFT(1);
+      expect(await spavax.totalLockedInUnlocks()).to.equal(0);
+    });
 
-  it("Should NOT change totalPooledAVAX", async function () {
-    const totalBefore = await spavax.totalPooledAVAX();
-    await spavax.connect(user1).cancelWithdrawalNFT(1);
-    const totalAfter = await spavax.totalPooledAVAX();
-    
-    expect(totalAfter).to.equal(totalBefore);
-  });
+    it("Should NOT change totalPooledAVAX", async function () {
+      const totalBefore = await spavax.totalPooledAVAX();
+      await spavax.connect(user1).cancelWithdrawalNFT(1);
+      const totalAfter = await spavax.totalPooledAVAX();
+      
+      expect(totalAfter).to.equal(totalBefore);
+    });
 
-  it("Should burn NFT", async function () {
-    expect(await nft.balanceOf(user1.address)).to.equal(1);
-    await spavax.connect(user1).cancelWithdrawalNFT(1);
-    expect(await nft.balanceOf(user1.address)).to.equal(0);
-  });
+    it("Should burn NFT", async function () {
+      expect(await nft.balanceOf(user1.address)).to.equal(1);
+      await spavax.connect(user1).cancelWithdrawalNFT(1);
+      expect(await nft.balanceOf(user1.address)).to.equal(0);
+    });
 
-  it("Should return original spAVAX amount (locked rate)", async function () {
-    const request = await nft.getRequest(1);
-    const lockedSpAvax = request.spAvaxAmount;
-    
-    await spavax.addRewards({ value: ethers.parseEther("10") });
-    
-    const balanceBefore = await spavax.balanceOf(user1.address);
-    await spavax.connect(user1).cancelWithdrawalNFT(1);
-    const balanceAfter = await spavax.balanceOf(user1.address);
-    
-    expect(balanceAfter - balanceBefore).to.equal(lockedSpAvax);
-  });
+    it("Should return original spAVAX amount (locked rate)", async function () {
+      const request = await nft.getRequest(1);
+      const lockedSpAvax = request.spAvaxAmount;
+      
+      await spavax.addRewards({ value: ethers.parseEther("10") });
+      
+      const balanceBefore = await spavax.balanceOf(user1.address);
+      await spavax.connect(user1).cancelWithdrawalNFT(1);
+      const balanceAfter = await spavax.balanceOf(user1.address);
+      
+      expect(balanceAfter - balanceBefore).to.equal(lockedSpAvax);
+    });
 
-  it("Should NOT allow cancel after unlock_time", async function () {
-    await time.increase(61); // After unlock period
-    
-    await expect(
-      spavax.connect(user1).cancelWithdrawalNFT(1)
-    ).to.be.revertedWith("Already unlocked, cannot cancel");
-  });
+    it("Should NOT allow cancel after unlock_time", async function () {
+      await time.increase(61);
+      
+      await expect(
+        spavax.connect(user1).cancelWithdrawalNFT(1)
+      ).to.be.revertedWithCustomError(spavax, "AlreadyUnlocked");
+    });
 
-  // ✅ FIXED TEST
-  it("Should allow cancel well before unlock_time", async function () {
-    // Cancel immediately after creation (way before 60s unlock)
-    const balanceBefore = await spavax.balanceOf(user1.address);
-    await spavax.connect(user1).cancelWithdrawalNFT(1);
-    const balanceAfter = await spavax.balanceOf(user1.address);
-    
-    expect(balanceAfter).to.be.gt(balanceBefore);
-    expect(await nft.balanceOf(user1.address)).to.equal(0);
+    it("Should allow cancel before unlock_time", async function () {
+      const balanceBefore = await spavax.balanceOf(user1.address);
+      await spavax.connect(user1).cancelWithdrawalNFT(1);
+      const balanceAfter = await spavax.balanceOf(user1.address);
+      
+      expect(balanceAfter).to.be.gt(balanceBefore);
+      expect(await nft.balanceOf(user1.address)).to.equal(0);
+    });
   });
-});
 
   describe("Legacy Claim Expired", function () {
     beforeEach(async function () {
@@ -570,30 +733,27 @@ describe("spAVAX V3 - Full Test Suite", function () {
     it("Should not allow claiming non-expired", async function () {
       await expect(
         spavax.connect(user1).claimExpired(0)
-      ).to.be.revertedWith("Not expired yet");
+      ).to.be.revertedWithCustomError(spavax, "NotExpired");
     });
 
     it("Should return original spAVAX amount on expiry", async function () {
       const request = await spavax.getUnlockRequest(user1.address, 0);
       const lockedSpAvax = request[0];
       
-      // Change exchange rate
       await spavax.addRewards({ value: ethers.parseEther("10") });
-      
       await time.increase(7 * 24 * 60 * 60 + 61);
       
       const balanceBefore = await spavax.balanceOf(user1.address);
       await spavax.connect(user1).claimExpired(0);
       const balanceAfter = await spavax.balanceOf(user1.address);
       
-      // Should get back EXACTLY the locked spAVAX amount
       expect(balanceAfter - balanceBefore).to.equal(lockedSpAvax);
     });
   });
 
   describe("NFT Claim Expired (claimExpiredNFT)", function () {
     beforeEach(async function () {
-      await spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
       await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
     });
 
@@ -617,92 +777,46 @@ describe("spAVAX V3 - Full Test Suite", function () {
     it("Should not allow claiming non-expired", async function () {
       await expect(
         spavax.connect(user1).claimExpiredNFT(1)
-      ).to.be.revertedWith("Not expired yet");
+      ).to.be.revertedWithCustomError(spavax, "NotExpired");
     });
 
-    // ✅ NEW TEST: Verify locked rate is preserved
     it("Should return original spAVAX amount (locked rate)", async function () {
       const request = await nft.getRequest(1);
       const lockedSpAvax = request.spAvaxAmount;
       
-      // Change exchange rate significantly
       await spavax.addRewards({ value: ethers.parseEther("10") });
-      
       await time.increase(7 * 24 * 60 * 60 + 61);
       
       const balanceBefore = await spavax.balanceOf(user1.address);
       await spavax.connect(user1).claimExpiredNFT(1);
       const balanceAfter = await spavax.balanceOf(user1.address);
       
-      // Should get back EXACTLY the locked spAVAX amount
       expect(balanceAfter - balanceBefore).to.equal(lockedSpAvax);
     });
   });
 
-  // ✅ NEW TEST SUITE: Rate Gaming Prevention
   describe("Rate Gaming Prevention", function () {
     beforeEach(async function () {
-      await spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("100") });
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("100") });
     });
 
     it("Should prevent canceling NFT after seeing rate increase", async function () {
-      // User requests withdrawal
       await spavax.connect(user1).withdraw(ethers.parseEther("50"), user1.address, user1.address);
       
-      const request = await nft.getRequest(1);
-      const lockedSpAvax = request.spAvaxAmount;
-      const lockedAvax = request.avaxAmount;
-      
-      // Rate increases (good for holders, bad for those who withdrew)
       await spavax.addRewards({ value: ethers.parseEther("50") });
-      
-      // User tries to game by canceling after unlock_time to keep spAVAX
       await time.increase(61);
       
-      // Should FAIL - cannot cancel after unlock_time
       await expect(
         spavax.connect(user1).cancelWithdrawalNFT(1)
-      ).to.be.revertedWith("Already unlocked, cannot cancel");
-      
-      // User is forced to either:
-      // 1. Claim AVAX (gets locked amount)
-      // 2. Let it expire (gets locked spAVAX back)
+      ).to.be.revertedWithCustomError(spavax, "AlreadyUnlocked");
     });
 
     it("Should allow cancel before unlock_time (normal use case)", async function () {
       await spavax.connect(user1).withdraw(ethers.parseEther("50"), user1.address, user1.address);
-      
-      // User changes mind before unlock_time
-      await time.increase(30); // Only 30 seconds (before 60s unlock)
+      await time.increase(30);
       
       await spavax.connect(user1).cancelWithdrawalNFT(1);
-      
-      // Should succeed
       expect(await nft.balanceOf(user1.address)).to.equal(0);
-    });
-
-    it("Should demonstrate no arbitrage opportunity", async function () {
-      // Setup: Rate = 1:1
-      const withdrawAmount = ethers.parseEther("50");
-      await spavax.connect(user1).withdraw(withdrawAmount, user1.address, user1.address);
-      
-      const request = await nft.getRequest(1);
-      const lockedSpAvax = request.spAvaxAmount;
-      
-      // Scenario 1: Rate goes DOWN (bad for holders)
-      // If user could cancel after seeing new rate, they'd keep spAVAX
-      // But they can't - must decide BEFORE unlock_time
-      
-      // Scenario 2: Rate goes UP (good for holders)
-      // If user could cancel after seeing new rate, they'd cancel and keep better spAVAX
-      // But they can't - must decide BEFORE unlock_time
-      
-      // Either way, user is committed to their decision at withdrawal time
-      await time.increase(61);
-      
-      await expect(
-        spavax.connect(user1).cancelWithdrawalNFT(1)
-      ).to.be.revertedWith("Already unlocked, cannot cancel");
     });
   });
 
@@ -722,16 +836,25 @@ describe("spAVAX V3 - Full Test Suite", function () {
 
     it("Should increase exchange rate", async function () {
       const rateBefore = await spavax.getExchangeRate();
-      
       await spavax.addRewards({ value: ethers.parseEther("10") });
-      
       expect(await spavax.getExchangeRate()).to.be.gt(rateBefore);
     });
 
     it("Should not allow zero rewards", async function () {
       await expect(
         spavax.addRewards({ value: 0 })
-      ).to.be.revertedWith("Reward must be > 0");
+      ).to.be.revertedWithCustomError(spavax, "InvalidAmount");
+    });
+
+    it("Should handle multiple sequential rewards", async function () {
+      await spavax.addRewards({ value: ethers.parseEther("10") });
+      await spavax.addRewards({ value: ethers.parseEther("5") });
+      await spavax.addRewards({ value: ethers.parseEther("3") });
+      
+      // Total rewards: 18 AVAX
+      // Fees: 18 * 0.08 = 1.44
+      // User rewards: 18 * 0.92 = 16.56
+      expect(await spavax.totalPooledAVAX()).to.equal(ethers.parseEther("116.56"));
     });
   });
 
@@ -743,7 +866,6 @@ describe("spAVAX V3 - Full Test Suite", function () {
 
     it("Should collect DAO fees", async function () {
       const balanceBefore = await ethers.provider.getBalance(owner.address);
-      
       await spavax.collectDaoFees();
       
       expect(await ethers.provider.getBalance(owner.address)).to.be.gt(balanceBefore);
@@ -763,70 +885,73 @@ describe("spAVAX V3 - Full Test Suite", function () {
       expect(await spavax.accumulatedDevFees()).to.equal(0);
     });
 
-    it("Should not allow non-governance to collect", async function () {
+    it("Should not allow non-owner to collect", async function () {
       await expect(
         spavax.connect(user1).collectDaoFees()
-      ).to.be.revertedWithCustomError(spavax, "NotGovernance");
+      ).to.be.revertedWithCustomError(spavax, "OwnableUnauthorizedAccount");
+    });
+
+    it("Should not allow collecting zero fees", async function () {
+      await spavax.collectAllFees();
+      
+      await expect(
+        spavax.collectDaoFees()
+      ).to.be.revertedWithCustomError(spavax, "NoFeesToCollect");
     });
   });
 
-  describe("Withdraw (admin function)", function () {
+  describe("Admin Withdraw", function () {
     beforeEach(async function () {
       await spavax.connect(user1).stake(0, { value: ethers.parseEther("100") });
     });
 
-    it("Should allow withdrawal", async function () {
+    it("Should allow adminWithdraw", async function () {
       const balanceBefore = await ethers.provider.getBalance(owner.address);
-      
-      await spavax.withdraw(ethers.parseEther("50"));
-      
+      await spavax.adminWithdraw(ethers.parseEther("50"));
       expect(await ethers.provider.getBalance(owner.address)).to.be.gt(balanceBefore);
+    });
+
+    it("Should enforce reserve ratio (10%)", async function () {
+      const totalPooled = await spavax.totalPooledAVAX();
+      const minReserve = totalPooled * 1000n / 10000n;
+      
+      const balance = await ethers.provider.getBalance(await spavax.getAddress());
+      
+      await expect(
+        spavax.adminWithdraw(balance - minReserve + ethers.parseEther("0.1"))
+      ).to.be.revertedWithCustomError(spavax, "InsufficientLiquidity");
     });
 
     it("Should prevent withdrawing committed fees", async function () {
       await spavax.addRewards({ value: ethers.parseEther("10") });
       
       const balance = await ethers.provider.getBalance(await spavax.getAddress());
-      const fees = await spavax.accumulatedDaoFees() + await spavax.accumulatedDevFees();
+      const fees = (await spavax.accumulatedDaoFees()) + (await spavax.accumulatedDevFees());
       
       await expect(
-        spavax.withdraw(balance - fees + ethers.parseEther("0.1"))
-      ).to.be.revertedWith("Insufficient liquidity after commitments");
+        spavax.adminWithdraw(balance - fees + ethers.parseEther("0.1"))
+      ).to.be.revertedWithCustomError(spavax, "InsufficientLiquidity");
     });
 
     it("Should prevent withdrawing when unlocks pending", async function () {
       await spavax.connect(user1).requestUnlock(ethers.parseEther("50"), 0);
       
       await expect(
-        spavax.withdraw(ethers.parseEther("60"))
-      ).to.be.revertedWith("Insufficient liquidity after commitments");
-    });
-
-    it("Should allow withdrawing only available liquidity", async function () {
-      await spavax.addRewards({ value: ethers.parseEther("10") });
-      await spavax.connect(user1).requestUnlock(ethers.parseEther("30"), 0);
-      
-      const balance = await ethers.provider.getBalance(await spavax.getAddress());
-      const fees = await spavax.accumulatedDaoFees() + await spavax.accumulatedDevFees();
-      const locked = await spavax.totalLockedInUnlocks();
-      const available = balance - fees - locked;
-      
-      await spavax.withdraw(available);
-      
-      await expect(
-        spavax.withdraw(1)
-      ).to.be.revertedWith("Insufficient liquidity after commitments");
+        spavax.adminWithdraw(ethers.parseEther("60"))
+      ).to.be.revertedWithCustomError(spavax, "InsufficientLiquidity");
     });
   });
 
   describe("Admin Functions", function () {
-    it("Should allow deposit", async function () {
-      await expect(spavax.deposit({ value: ethers.parseEther("5") }))
+    it("Should allow adminDeposit", async function () {
+      await expect(spavax.adminDeposit({ value: ethers.parseEther("5") }))
         .to.emit(spavax, "Deposited");
     });
 
     it("Should update fee structure", async function () {
-      await spavax.setFeeStructure(400, 200);
+      await expect(spavax.setFeeStructure(400, 200))
+        .to.emit(spavax, "FeeStructureUpdated")
+        .withArgs(600, 400, 200);
       
       expect(await spavax.daoFeeBasisPoints()).to.equal(400);
       expect(await spavax.devFeeBasisPoints()).to.equal(200);
@@ -836,17 +961,54 @@ describe("spAVAX V3 - Full Test Suite", function () {
     it("Should not allow fees above 10%", async function () {
       await expect(
         spavax.setFeeStructure(600, 500)
-      ).to.be.revertedWith("Total fees too high (max 10%)");
+      ).to.be.revertedWithCustomError(spavax, "InvalidFeeStructure");
     });
 
     it("Should update minStakeAmount", async function () {
-      await spavax.setMinStakeAmount(ethers.parseEther("0.5"));
+      await expect(spavax.setMinStakeAmount(ethers.parseEther("0.5")))
+        .to.emit(spavax, "MinStakeAmountUpdated");
+      
       expect(await spavax.minStakeAmount()).to.equal(ethers.parseEther("0.5"));
     });
 
     it("Should update unlock period", async function () {
-      await spavax.setUnlockPeriod(7 * 24 * 60 * 60);
-      expect(await spavax.unlockPeriod()).to.equal(7 * 24 * 60 * 60);
+      const newPeriod = 7 * 24 * 60 * 60;
+      await expect(spavax.setUnlockPeriod(newPeriod))
+        .to.emit(spavax, "UnlockPeriodUpdated");
+      
+      expect(await spavax.unlockPeriod()).to.equal(newPeriod);
+    });
+
+    it("Should not allow unlock period below minimum", async function () {
+      await expect(
+        spavax.setUnlockPeriod(6 * 24 * 60 * 60)
+      ).to.be.revertedWithCustomError(spavax, "InvalidAmount");
+    });
+
+    it("Should not allow unlock period above maximum", async function () {
+      await expect(
+        spavax.setUnlockPeriod(31 * 24 * 60 * 60)
+      ).to.be.revertedWithCustomError(spavax, "InvalidAmount");
+    });
+
+    it("Should update claim window", async function () {
+      const newWindow = 10 * 24 * 60 * 60;
+      await expect(spavax.setClaimWindow(newWindow))
+        .to.emit(spavax, "ClaimWindowUpdated");
+      
+      expect(await spavax.claimWindow()).to.equal(newWindow);
+    });
+
+    it("Should not allow claim window below minimum", async function () {
+      await expect(
+        spavax.setClaimWindow(30 * 60)
+      ).to.be.revertedWithCustomError(spavax, "InvalidAmount");
+    });
+
+    it("Should not allow claim window above maximum", async function () {
+      await expect(
+        spavax.setClaimWindow(31 * 24 * 60 * 60)
+      ).to.be.revertedWithCustomError(spavax, "InvalidAmount");
     });
 
     it("Should pause and unpause", async function () {
@@ -856,34 +1018,20 @@ describe("spAVAX V3 - Full Test Suite", function () {
       await spavax.unpause();
       expect(await spavax.paused()).to.be.false;
     });
-  });
 
-  describe("Governance", function () {
-    it("Should transfer governance", async function () {
-      await spavax.transferGovernance(user1.address);
-      expect(await spavax.pendingGovernance()).to.equal(user1.address);
-      
-      await spavax.connect(user1).acceptGovernance();
-      expect(await spavax.governance()).to.equal(user1.address);
-    });
-
-    it("Should not allow non-pending to accept", async function () {
-      await spavax.transferGovernance(user1.address);
+    it("Should not allow non-owner to call admin functions", async function () {
+      await expect(
+        spavax.connect(user1).setFeeStructure(400, 200)
+      ).to.be.revertedWithCustomError(spavax, "OwnableUnauthorizedAccount");
       
       await expect(
-        spavax.connect(user2).acceptGovernance()
-      ).to.be.revertedWith("Not pending governance");
-    });
-
-    it("Should not allow zero address", async function () {
-      await expect(
-        spavax.transferGovernance(ethers.ZeroAddress)
-      ).to.be.revertedWith("Invalid address");
+        spavax.connect(user1).pause()
+      ).to.be.revertedWithCustomError(spavax, "OwnableUnauthorizedAccount");
     });
   });
 
   describe("Receive Function", function () {
-    it("Should reject from non-governance", async function () {
+    it("Should reject from non-owner", async function () {
       const contractAddress = await spavax.getAddress();
       
       await expect(
@@ -891,10 +1039,10 @@ describe("spAVAX V3 - Full Test Suite", function () {
           to: contractAddress,
           value: ethers.parseEther("1")
         })
-      ).to.be.revertedWith("Use stake() function");
+      ).to.be.revertedWithCustomError(spavax, "InvalidAddress");
     });
 
-    it("Should accept from governance", async function () {
+    it("Should accept from owner", async function () {
       const contractAddress = await spavax.getAddress();
       
       await expect(
@@ -918,22 +1066,6 @@ describe("spAVAX V3 - Full Test Suite", function () {
       expect(await spavax.getExchangeRate()).to.equal(ethers.parseEther("1.092"));
     });
 
-    it("Should preview stake correctly", async function () {
-      await spavax.connect(user1).stake(0, { value: ethers.parseEther("100") });
-      await spavax.addRewards({ value: ethers.parseEther("10") });
-      
-      const preview = await spavax.previewStake(ethers.parseEther("10"));
-      expect(preview).to.be.lt(ethers.parseEther("10"));
-    });
-
-    it("Should preview unlock correctly", async function () {
-      await spavax.connect(user1).stake(0, { value: ethers.parseEther("100") });
-      await spavax.addRewards({ value: ethers.parseEther("10") });
-      
-      const preview = await spavax.previewUnlock(ethers.parseEther("10"));
-      expect(preview).to.be.gt(ethers.parseEther("10"));
-    });
-
     it("Should return correct stats", async function () {
       await spavax.connect(user1).stake(0, { value: ethers.parseEther("10") });
       
@@ -942,76 +1074,45 @@ describe("spAVAX V3 - Full Test Suite", function () {
       expect(stats[1]).to.equal(ethers.parseEther("10"));
       expect(stats[2]).to.equal(ethers.parseEther("1"));
     });
-  });
 
-  describe("Exchange Rate Consistency Across Both Flows", function () {
-    it("Should maintain rate when claiming across both flows", async function () {
-      // Both users stake 10 AVAX each
+    it("Should return unlock request details with status flags", async function () {
       await spavax.connect(user1).stake(0, { value: ethers.parseEther("10") });
-      await spavax.connect(user2).depositAVAX(user2.address, { value: ethers.parseEther("10") });
-      
-      // Total: 20 AVAX pooled, 20 spAVAX minted (10 each)
-      
-      // Both request unlock for 5 AVAX each
       await spavax.connect(user1).requestUnlock(ethers.parseEther("5"), 0);
-      await spavax.connect(user2).withdraw(ethers.parseEther("5"), user2.address, user2.address);
       
-      // Key difference in the flows:
-      // - Legacy (user1): 5 spAVAX TRANSFERRED to contract (still in supply)
-      // - ERC-4626 (user2): 5 spAVAX BURNED (removed from supply)
-      // 
-      // State before claim:
-      // - Total supply: 15 spAVAX (10 - 5 burned from user2)
-      // - Total pooled: 20 AVAX (unchanged until claim)
-      // - Rate: 20/15 = 1.333...
+      const request = await spavax.getUnlockRequest(user1.address, 0);
       
-      const rateBefore = await spavax.getExchangeRate();
-      expect(rateBefore).to.equal(ethers.parseEther("1.333333333333333333"));
+      expect(request[0]).to.equal(ethers.parseEther("5"));
+      expect(request[1]).to.equal(ethers.parseEther("5"));
+      expect(request[4]).to.equal(false);
+      expect(request[5]).to.equal(false);
       
-      // Both claim 5 AVAX
       await time.increase(61);
-      await spavax.connect(user1).claimUnlock(0);
-      await spavax.connect(user2).claimWithdrawalNFT(1);
       
-      // After both claims:
-      // - user1 claim: burns 5 spAVAX from contract, removes 5 AVAX from pool
-      // - user2 claim: already burned spAVAX, just removes 5 AVAX from pool
-      // 
-      // Final state:
-      // - Total supply: 10 spAVAX (5 user1 + 5 user2 in wallets)
-      // - Total pooled: 10 AVAX (20 - 5 - 5)
-      // - Rate: 10/10 = 1:1
+      const request2 = await spavax.getUnlockRequest(user1.address, 0);
+      expect(request2[4]).to.equal(true);
       
-      const rateAfter = await spavax.getExchangeRate();
-      expect(rateAfter).to.equal(ethers.parseEther("1"));
+      await time.increase(7 * 24 * 60 * 60);
       
-      // This test demonstrates that despite different intermediate states,
-      // the final exchange rate converges correctly after claims complete
+      const request3 = await spavax.getUnlockRequest(user1.address, 0);
+      expect(request3[5]).to.equal(true);
     });
   });
 
-  // ✅ NEW TEST SUITE: NFT Transferability
   describe("NFT Transfer and Third-Party Claims", function () {
     beforeEach(async function () {
-      await spavax.connect(user1).depositAVAX(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
       await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
     });
 
     it("Should allow NFT transfer to another user", async function () {
-      // user1 transfers NFT to user2
       await nft.connect(user1).transferFrom(user1.address, user2.address, 1);
-      
       expect(await nft.ownerOf(1)).to.equal(user2.address);
     });
 
     it("Should allow new owner to claim", async function () {
-      // Transfer NFT
       await nft.connect(user1).transferFrom(user1.address, user2.address, 1);
-      
-      // Wait for unlock
       await time.increase(61);
       
-      // user2 (new owner) claims
       const balanceBefore = await ethers.provider.getBalance(user2.address);
       await spavax.connect(user2).claimWithdrawalNFT(1);
       const balanceAfter = await ethers.provider.getBalance(user2.address);
@@ -1020,16 +1121,182 @@ describe("spAVAX V3 - Full Test Suite", function () {
     });
 
     it("Should prevent original owner from claiming after transfer", async function () {
-      // Transfer NFT
       await nft.connect(user1).transferFrom(user1.address, user2.address, 1);
-      
-      // Wait for unlock
       await time.increase(61);
       
-      // user1 (original owner) tries to claim
       await expect(
         spavax.connect(user1).claimWithdrawalNFT(1)
-      ).to.be.revertedWith("Not NFT owner");
+      ).to.be.revertedWithCustomError(spavax, "NotNFTOwner");
+    });
+  });
+
+  describe("WithdrawalQueueNFT Contract Tests", function () {
+    it("Should have correct name and symbol", async function () {
+      expect(await nft.name()).to.equal("Sparrow Withdrawal Request");
+      expect(await nft.symbol()).to.equal("spWR");
+    });
+
+    it("Should not allow non-vault to mint", async function () {
+      const request = {
+        spAvaxAmount: ethers.parseEther("1"),
+        avaxAmount: ethers.parseEther("1"),
+        unlockTime: Math.floor(Date.now() / 1000) + 60,
+        expiryTime: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
+      };
+      
+      await expect(
+        nft.connect(user1).mint(user1.address, request)
+      ).to.be.revertedWith("Only vault can call");
+    });
+
+    it("Should not allow non-vault to burn", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
+      
+      await expect(
+        nft.connect(user1).burn(1)
+      ).to.be.revertedWith("Only vault can call");
+    });
+
+    it("Should return correct isClaimable status", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
+      
+      expect(await nft.isClaimable(1)).to.be.false;
+      
+      await time.increase(61);
+      
+      expect(await nft.isClaimable(1)).to.be.true;
+      
+      await time.increase(7 * 24 * 60 * 60);
+      
+      expect(await nft.isClaimable(1)).to.be.false;
+    });
+
+    it("Should return correct isExpired status", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
+      
+      expect(await nft.isExpired(1)).to.be.false;
+      
+      await time.increase(7 * 24 * 60 * 60 + 61);
+      
+      expect(await nft.isExpired(1)).to.be.true;
+    });
+
+    it("Should generate tokenURI with metadata", async function () {
+      await spavax.connect(user1).deposit(user1.address, { value: ethers.parseEther("10") });
+      await spavax.connect(user1).withdraw(ethers.parseEther("5"), user1.address, user1.address);
+      
+      const uri = await nft.tokenURI(1);
+      expect(uri).to.include("data:application/json;base64,");
+      
+      const json = Buffer.from(uri.split(",")[1], "base64").toString();
+      const metadata = JSON.parse(json);
+      
+      expect(metadata.name).to.include("Sparrow Withdrawal Request #1");
+      expect(metadata.description).to.include("5 AVAX");
+    });
+  });
+
+  describe("Array Removal Edge Cases", function () {
+    it("Should handle removing first element", async function () {
+      await spavax.connect(user1).stake(0, { value: ethers.parseEther("10") });
+      
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("1"), 0);
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("1"), 0);
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("1"), 0);
+      
+      expect(await spavax.getUnlockRequestCount(user1.address)).to.equal(3);
+      
+      await spavax.connect(user1).cancelUnlock(0);
+      
+      expect(await spavax.getUnlockRequestCount(user1.address)).to.equal(2);
+    });
+
+    it("Should handle removing middle element", async function () {
+      await spavax.connect(user1).stake(0, { value: ethers.parseEther("10") });
+      
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("1"), 0);
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("2"), 0);
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("3"), 0);
+      
+      await spavax.connect(user1).cancelUnlock(1);
+      
+      expect(await spavax.getUnlockRequestCount(user1.address)).to.equal(2);
+    });
+
+    it("Should handle removing last element", async function () {
+      await spavax.connect(user1).stake(0, { value: ethers.parseEther("10") });
+      
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("1"), 0);
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("2"), 0);
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("3"), 0);
+      
+      await spavax.connect(user1).cancelUnlock(2);
+      
+      expect(await spavax.getUnlockRequestCount(user1.address)).to.equal(2);
+    });
+  });
+
+  describe("Complex Integration Tests", function () {
+    it("Should handle multiple users with multiple flows", async function () {
+      // Initial stakes
+      await spavax.connect(user1).stake(0, { value: ethers.parseEther("10") });
+      await spavax.connect(user2).deposit(user2.address, { value: ethers.parseEther("10") });
+      
+      // Add rewards
+      await spavax.addRewards({ value: ethers.parseEther("2") });
+      
+      // User1 requests unlock (legacy)
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("5"), 0);
+      
+      // User2 withdraws (NFT) - need to calculate shares for 5 AVAX worth
+      const assets = ethers.parseEther("5");
+      await spavax.connect(user2).withdraw(assets, user2.address, user2.address);
+      
+      // Wait unlock period
+      await time.increase(61);
+      
+      // Both claim
+      await spavax.connect(user1).claimUnlock(0);
+      await spavax.connect(user2).claimWithdrawalNFT(1);
+      
+      // Both should have remaining balances
+      expect(await spavax.balanceOf(user1.address)).to.be.gt(0);
+      expect(await spavax.balanceOf(user2.address)).to.be.gt(0);
+    });
+
+    it("Should maintain accounting across complex scenarios", async function () {
+      // Multiple users stake using different methods
+      await spavax.connect(user1).stake(0, { value: ethers.parseEther("50") });
+      await spavax.connect(user2).deposit(user2.address, { value: ethers.parseEther("30") });
+      
+      // User3 mints exact shares (at 1:1 rate initially)
+      const shares = ethers.parseEther("20");
+      const assets = await spavax.previewMint(shares);
+      await spavax.connect(user3).mint(shares, user3.address, { value: assets });
+      
+      // Add rewards
+      await spavax.addRewards({ value: ethers.parseEther("10") });
+      
+      // Various unlock requests
+      await spavax.connect(user1).requestUnlock(ethers.parseEther("10"), 0);
+      await spavax.connect(user2).withdraw(ethers.parseEther("5"), user2.address, user2.address);
+      
+      // Check accounting
+      const totalSupply = await spavax.totalSupply();
+      const totalPooled = await spavax.totalPooledAVAX();
+      const totalLocked = await spavax.totalLockedInUnlocks();
+      
+      // totalSupply should be less than initial (user2 burned shares)
+      expect(totalSupply).to.be.lt(ethers.parseEther("100"));
+      
+      // totalPooled should be initial + rewards (no claims yet)
+      expect(totalPooled).to.equal(ethers.parseEther("109.2"));
+      
+      // totalLocked should equal requested unlocks
+      expect(totalLocked).to.be.gt(0);
     });
   });
 });
