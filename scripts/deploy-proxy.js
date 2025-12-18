@@ -79,7 +79,7 @@ async function main() {
   const SpAVAX = await hre.ethers.getContractFactory("spAVAX");
   
   console.log("⏳ Deploying UUPS proxy...");
-  const spavax = await upgrades.deployProxy(SpAVAX, [], {
+  const spavax = await upgrades.deployProxy(SpAVAX, [nftAddress], {
     initializer: "initialize",
     kind: "uups"
   });
@@ -104,11 +104,7 @@ async function main() {
   console.log("🔗 Linking Contracts...");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
-  console.log("⏳ Setting NFT contract in spAVAX...");
-  const tx1 = await spavax.setWithdrawalNFT(nftAddress);
-  await tx1.wait();
-  console.log("✅ NFT contract set in spAVAX\n");
-
+  // NFT is already set in initialize(), just need to set vault in NFT
   console.log("⏳ Setting vault address in NFT...");
   const tx2 = await nft.setVault(proxyAddress);
   await tx2.wait();
@@ -136,7 +132,7 @@ async function main() {
   const name = await spavax.name();
   const symbol = await spavax.symbol();
   const decimals = await spavax.decimals();
-  const governance = await spavax.governance();
+  const owner = await spavax.owner();
   const asset = await spavax.asset();
 
   console.log("📊 Token Information:");
@@ -144,11 +140,11 @@ async function main() {
   console.log("   Symbol:", symbol);
   console.log("   Decimals:", decimals);
   console.log("   Asset:", asset, "(native AVAX)");
-  console.log("   Governance:", governance, "\n");
+  console.log("   Owner:", owner, "\n");
 
-  if (governance.toLowerCase() !== deployer.address.toLowerCase()) {
-    console.log("⚠️  WARNING: Governance address mismatch!");
-    throw new Error("Governance should be deployer address");
+  if (owner.toLowerCase() !== deployer.address.toLowerCase()) {
+    console.log("⚠️  WARNING: Owner address mismatch!");
+    throw new Error("Owner should be deployer address");
   }
 
   const stats = await spavax.getStats();
@@ -227,7 +223,7 @@ async function main() {
     proxyAddress: proxyAddress,
     implementationAddress: implementationAddress,
     deployer: deployer.address,
-    governance: governance,
+    owner: owner,
     blockNumber: await hre.ethers.provider.getBlockNumber(),
     timestamp: new Date().toISOString(),
     tokenName: name,
